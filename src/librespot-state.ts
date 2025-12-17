@@ -371,8 +371,11 @@ class LibrespotStateService {
       const response = await fetch(`${LIBRESPOT_API_URL}/status`);
       if (!response.ok) {
         console.log("Failed to fetch initial state from go-librespot:", response.status);
-        return;
-      }
+
+      } else 
+      if (response.status === 204) {
+        // No Content: nothing to initialize, leave state as is
+      } else {
 
       const status = await response.json();
 
@@ -423,12 +426,14 @@ class LibrespotStateService {
       ) {
         this.currentState.position = 0;
       }
+    }
 
       // Notify state change to update any waiting pollers
       this.notifyStateChange();
       console.log("Initial state loaded from go-librespot REST API");
     } catch (error) {
       console.log("Failed to query initial state from go-librespot:", error);
+      this.notifyStateChange();
       // Don't throw - this is best effort, WebSocket will provide updates
     }
   }
