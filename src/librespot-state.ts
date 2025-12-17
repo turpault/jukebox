@@ -358,8 +358,6 @@ class LibrespotStateService {
         this.currentState.position !== undefined
       ) {
         this.currentState.position = this.currentState.position + this.positionIntervalMs;
-        // Notify state change to update any waiting pollers
-        this.notifyStateChange();
       }
       // If not playing, simply don't increment (timer keeps running)
     }, this.positionIntervalMs);
@@ -367,6 +365,17 @@ class LibrespotStateService {
 
   // Query initial state from go-librespot REST API
   private async queryInitialState(): Promise<void> {
+    this.currentState = {
+      isActive: false,
+      isPaused: true,
+      currentTrack: null,
+      position: 0,
+      volume: 0,
+      volumeMax: 0,
+      repeatContext: false,
+      repeatTrack: false,
+      shuffleContext: false,
+    };
     try {
       const response = await fetch(`${LIBRESPOT_API_URL}/status`);
       if (!response.ok) {

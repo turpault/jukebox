@@ -932,64 +932,22 @@ export async function handleGetImage(req: Request) {
     await ensureCacheDir();
     const cachePath = getImageCachePath(imageUrl);
 
-    // Check if image is already cached (no expiration check)
-    let fromCache = false;
-
-    try {
-      const stats = await stat(cachePath);
-      // Cache exists, serve from cache using Bun.file()
-      fromCache = true;
-      const file = Bun.file(cachePath);
-
-      traceApiEnd(traceContext, 200, {
-        contentType: file.type || 'image/jpeg',
-        size: stats.size,
-        fromCache
-      });
-
-      return new Response(file, {
-        headers: {
-          'Cache-Control': 'public, max-age=2592000', // Cache for 30 days
-        },
-      });
-    } catch {
-      // Cache doesn't exist, fetch and cache
+    if(! await Bun.file(cachePath).exists()) {
       const response = await fetch(imageUrl);
       if (!response.ok) {
-        traceApiEnd(traceContext, response.status, { error: "Failed to fetch image" });
-        return Response.json({ error: "Failed to fetch image" }, { status: response.status });
+        throw new Error(`Failed to fetch image: ${response.status}`);
       }
-
-      // Get the image data as array buffer
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      // Cache the image to disk
-      try {
-        await writeFile(cachePath, buffer);
-      } catch (error) {
-        console.error(`Failed to cache image for ${imageUrl}:`, error);
-        // Continue even if caching fails
-      }
-
-      // Serve the file using Bun.file() (Bun automatically sets MIME type from extension)
-      const file = Bun.file(cachePath);
-      const fileSize = buffer.length;
-
-      traceApiEnd(traceContext, 200, {
-        contentType: file.type || response.headers.get('content-type') || 'image/jpeg',
-        size: fileSize,
-        fromCache: false
-      });
-
-      return new Response(file, {
-        headers: {
-          'Cache-Control': 'public, max-age=2592000', // Cache for 30 days
-        },
-      });
+      await Bun.write(cachePath, response);
     }
+
+    const file = Bun.file(cachePath);
+    return new Response(file, {
+      headers: {
+        'Cache-Control': 'public, max-age=2592000', // Cache for 30 days
+      },
+    });
   } catch (error) {
     traceApiEnd(traceContext, 500, null, error);
-    return Response.json({ error: "Failed to process image" }, { status: 500 });
+    return Response.json({ error: "Failed to serve image" }, { status: 500 });
   }
 }
