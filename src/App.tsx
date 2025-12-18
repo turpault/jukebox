@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 import { useJukeboxState } from './JukeboxStateProvider';
 import { useConfigState } from './ConfigStateProvider';
 import { SpotifyIdsList } from './SpotifyIdsList';
+import { VolumeIndicator } from './VolumeIndicator';
 
 interface TrackMetadata {
   context_uri?: string;
@@ -323,6 +324,7 @@ export default function App() {
       setTheme(themes[themeName]);
     }
   }, [themeName]);
+
 
   // Handle kiosk mode fullscreen
   useEffect(() => {
@@ -737,13 +739,20 @@ export default function App() {
         {playerState.isActive && playerState.currentTrack ? (
           <>
             <div style={styles.player}>
-              {playerState.currentTrack.album_cover_url && (
-                <img
-                  src={getCachedImageUrl(playerState.currentTrack.album_cover_url)}
-                  alt={playerState.currentTrack.name || 'Album cover'}
-                  style={styles.albumArt}
-                />
-              )}
+              <VolumeIndicator
+                volume={playerState.volume}
+                volumeMax={playerState.volumeMax}
+                theme={theme}
+                isMobile={isMobile}
+              >
+                {playerState.currentTrack?.album_cover_url && (
+                  <img
+                    src={getCachedImageUrl(playerState.currentTrack.album_cover_url)}
+                    alt={playerState.currentTrack.name || 'Album cover'}
+                    style={styles.albumArt}
+                  />
+                )}
+              </VolumeIndicator>
               <div style={styles.trackInfo}>
                 <h2 style={{
                   color: theme.colors.text,
