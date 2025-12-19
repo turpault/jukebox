@@ -31,7 +31,8 @@ export default function Manage() {
   
   // Link generator state
   const [linkTheme, setLinkTheme] = useState<string>('steampunk');
-  const [linkView, setLinkView] = useState<string>('default');
+  const [linkControls, setLinkControls] = useState<string>('false');
+  const [linkQueues, setLinkQueues] = useState<string>('false');
   const [linkPlacement, setLinkPlacement] = useState<string>('fullscreen');
   const [generatedLink, setGeneratedLink] = useState<string>('');
   const [linkCopied, setLinkCopied] = useState<boolean>(false);
@@ -634,7 +635,7 @@ export default function Manage() {
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Link Generator</h2>
           <p style={styles.helpText}>
-            Generate a link with custom theme and view settings. Share this link to open the jukebox with your preferred configuration.
+            Generate a link with custom theme, display, and placement settings. Share this link to open the jukebox with your preferred configuration.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
@@ -656,20 +657,36 @@ export default function Manage() {
             </div>
             <div>
               <label style={styles.label}>
-                View:
+                Show Controls:
               </label>
               <select
-                value={linkView}
+                value={linkControls}
                 onChange={(e) => {
-                  setLinkView(e.target.value);
+                  setLinkControls(e.target.value);
                   setGeneratedLink('');
                   setLinkCopied(false);
                 }}
                 style={styles.select}
               >
-                <option value="default">Default (Controls & Queue)</option>
-                <option value="dash">Dash (Track Only)</option>
-                <option value="controls">Controls Only</option>
+                <option value="false">Hidden</option>
+                <option value="true">Visible</option>
+              </select>
+            </div>
+            <div>
+              <label style={styles.label}>
+                Show Queues:
+              </label>
+              <select
+                value={linkQueues}
+                onChange={(e) => {
+                  setLinkQueues(e.target.value);
+                  setGeneratedLink('');
+                  setLinkCopied(false);
+                }}
+                style={styles.select}
+              >
+                <option value="false">Hidden</option>
+                <option value="true">Visible</option>
               </select>
             </div>
             <div>
@@ -692,7 +709,16 @@ export default function Manage() {
             <button
               onClick={() => {
                 const baseUrl = window.location.origin;
-                const link = `${baseUrl}/?theme=${linkTheme}&view=${linkView}&placement=${linkPlacement}`;
+                const params = new URLSearchParams();
+                params.set('theme', linkTheme);
+                params.set('placement', linkPlacement);
+                if (linkControls === 'true') {
+                  params.set('controls', 'true');
+                }
+                if (linkQueues === 'true') {
+                  params.set('queues', 'true');
+                }
+                const link = `${baseUrl}/?${params.toString()}`;
                 setGeneratedLink(link);
                 setLinkCopied(false);
               }}
