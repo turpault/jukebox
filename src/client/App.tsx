@@ -16,6 +16,7 @@ import {
   RepeatIcon,
   RepeatOneIcon,
   VolumeIcon,
+  MuteIcon,
 } from './Icons';
 
 // Client-side tracing utilities (matching server-side trace format)
@@ -86,6 +87,7 @@ export default function App() {
   // Get state from provider
   const {
     playerState,
+    isMuted,
     statusMessage,
     isConnected,
     themeName,
@@ -101,6 +103,7 @@ export default function App() {
     nextTrack,
     previousTrack,
     setVolume,
+    toggleMute,
     seek,
     toggleRepeat,
     toggleShuffle,
@@ -583,7 +586,11 @@ export default function App() {
               {viewName !== 'dash' && (
                 <div style={styles.volumeContainer}>
                   <div style={styles.iconVolumeContainer}>
-                    <VolumeIcon color={theme.colors.textSecondary} size={20} />
+                    {isMuted ? (
+                      <MuteIcon color={theme.colors.textSecondary} size={20} />
+                    ) : (
+                      <VolumeIcon color={theme.colors.textSecondary} size={20} />
+                    )}
                   </div>
                   <input
                     type="range"
@@ -604,6 +611,19 @@ export default function App() {
                     }}
                     style={styles.volumeSlider}
                   />
+                  <button
+                    style={styles.muteButton}
+                    onClick={toggleMute}
+                    title={isMuted ? "Unmute" : "Mute"}
+                    onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.muteButtonHover)}
+                    onMouseLeave={(e) => Object.assign(e.currentTarget.style, styles.muteButton)}
+                  >
+                    {isMuted ? (
+                      <MuteIcon color={theme.colors.textSecondary} size={16} />
+                    ) : (
+                      <VolumeIcon color={theme.colors.textSecondary} size={16} />
+                    )}
+                  </button>
                   <span style={styles.volumeLabel}>{Math.round((playerState.volume / (playerState.volumeMax || 100)) * 100)}%</span>
                 </div>
               )}
@@ -999,6 +1019,20 @@ const createStyles = (theme: Theme): Record<string, React.CSSProperties> => ({
     border: `1px solid ${theme.colors.border}`,
     touchAction: 'pan-y',
     WebkitTapHighlightColor: 'transparent',
+  },
+  muteButton: {
+    background: 'transparent',
+    border: 'none',
+    cursor: 'pointer',
+    padding: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: theme.effects.borderRadius,
+    transition: 'background-color 0.2s',
+  },
+  muteButtonHover: {
+    backgroundColor: theme.colors.surface,
   },
   volumeLabel: {
     fontSize: '0.9em',

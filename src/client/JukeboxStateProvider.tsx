@@ -96,6 +96,7 @@ const logPlayerEvent = (event: string, data?: any, error?: any) => {
 export interface JukeboxStateContextValue {
   // Player state
   playerState: PlayerState;
+  isMuted: boolean;
   statusMessage: string;
   isConnected: boolean;
 
@@ -120,6 +121,7 @@ export interface JukeboxStateContextValue {
   nextTrack: () => Promise<void>;
   previousTrack: () => Promise<void>;
   setVolume: (volume: number) => Promise<void>;
+  toggleMute: () => Promise<void>;
   seek: (position: number) => Promise<void>;
   toggleRepeat: () => Promise<void>;
   toggleShuffle: () => Promise<void>;
@@ -158,6 +160,8 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     shuffleContext: false,
   });
   const [statusMessage, setStatusMessageState] = useState("No Spotify Connect instance connected");
+  const [isMuted, setIsMuted] = useState(false);
+  const [previousVolume, setPreviousVolume] = useState<number | null>(null);
 
   // Wrapper to support both string and function updates
   const setStatusMessage = useCallback((message: string | ((prev: string) => string)) => {
@@ -519,8 +523,31 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
 
   const setVolume = useCallback(async (volume: number) => {
     logPlayerEvent('User action: Set volume', { volume });
+    // If setting volume while muted, unmute first
+    if (isMuted && volume > 0) {
+      setIsMuted(false);
+      setPreviousVolume(null);
+    }
     await apiCall('/player/volume', 'POST', { volume });
-  }, [apiCall]);
+  }, [apiCall, isMuted]);
+
+  const toggleMute = useCallback(async () => {
+    if (isMuted) {
+      // Unmute: restore previous volume or use current volume if available
+      const volumeToRestore = previousVolume !== null ? previousVolume : (playerState.volume > 0 ? playerState.volume : 50);
+      logPlayerEvent('User action: Unmute', { volume: volumeToRestore });
+      setIsMuted(false);
+      setPreviousVolume(null);
+      await apiCall('/player/volume', 'POST', { volume: volumeToRestore });
+    } else {
+      // Mute: save current volume and set to 0
+      const currentVolume = playerState.volume;
+      logPlayerEvent('User action: Mute', { previousVolume: currentVolume });
+      setIsMuted(true);
+      setPreviousVolume(currentVolume);
+      await apiCall('/player/volume', 'POST', { volume: 0 });
+    }
+  }, [apiCall, isMuted, previousVolume, playerState.volume]);
 
   const seek = useCallback(async (position: number) => {
     logPlayerEvent('User action: Seek', { position });
@@ -756,6 +783,7 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
 
   const value: JukeboxStateContextValue = {
     playerState,
+    isMuted,
     statusMessage,
     isConnected,
     themeName,
@@ -774,6 +802,7 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     nextTrack,
     previousTrack,
     setVolume,
+    toggleMute,
     seek,
     toggleRepeat,
     toggleShuffle,

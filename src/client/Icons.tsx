@@ -74,3 +74,20 @@ export const VolumeIcon: React.FC<IconProps> = ({ color = 'currentColor', size =
   </svg>
 );
 
+export const MuteIcon: React.FC<IconProps> = ({ color = 'currentColor', size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path
+      d="M2 6L8 2V14L2 10H0V6H2Z"
+      fill={color}
+    />
+    <path
+      d="M12 4L16 8L12 12M16 4L12 8L16 12"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
+  </svg>
+);
+
