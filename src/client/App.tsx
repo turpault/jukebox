@@ -3,6 +3,7 @@ import { useJukeboxState } from './JukeboxStateProvider';
 import { useConfigState } from './ConfigStateProvider';
 import { SpotifyIdsList } from './SpotifyIdsList';
 import { VolumeIndicator } from './VolumeIndicator';
+import { WaitingForPlayback } from './WaitingForPlayback';
 import type { HotkeyConfig } from '../types';
 import { Theme, themes, steampunkTheme } from './types';
 import { getCachedImageUrl } from './utils';
@@ -79,6 +80,7 @@ export default function App() {
     isConnected,
     themeName,
     viewName,
+    screenPlacement,
     isKioskMode,
     hotkeys,
     isThemeLoaded,
@@ -153,24 +155,14 @@ export default function App() {
   }, []);
 
 
-  const updateTheme = useCallback(async (newThemeName: string) => {
-    // Update theme immediately for responsive UI
-    if (themes[newThemeName]) {
-      setTheme(themes[newThemeName]);
-      setThemeName(newThemeName);
+  // Update theme when query parameter changes
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const themeParam = urlParams.get('theme') || 'steampunk';
+    if (themes[themeParam]) {
+      setTheme(themes[themeParam]);
     }
-
-    // Persist to server in the background
-    try {
-      const response = await apiCall('/api/theme', 'POST', { theme: newThemeName });
-      if (!response || !response.theme) {
-        console.warn('Theme update may not have been persisted:', response);
-      }
-    } catch (error) {
-      console.error('Failed to persist theme to server:', error);
-      // Theme is already updated in UI, so we just log the error
-    }
-  }, []);
+  }, [themeName]);
 
   // Update theme when themeName changes
   useEffect(() => {
@@ -442,224 +434,89 @@ export default function App() {
     );
   }
 
-  if (!isConnected && isConnectionStatusKnown) {
-    return (
-      <div style={styles.container}>
-        {/* Theme selector */}
-        <div style={{
-          position: 'absolute',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 1000,
-        }}>
-          <select
-            value={themeName}
-            onChange={(e) => updateTheme(e.target.value)}
-            style={{
-              background: theme.colors.surface,
-              color: theme.colors.text,
-              border: `2px solid ${theme.colors.border}`,
-              borderRadius: theme.effects.borderRadius,
-              padding: '8px 12px',
-              fontFamily: theme.fonts.primary,
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              outline: 'none',
-            }}
-          >
-            <option value="steampunk">Steampunk 1930s</option>
-            <option value="matrix">Matrix</option>
-          </select>
-        </div>
-        <div style={{
-          ...styles.loadingContent,
-          maxWidth: isMobile ? '95%' : '800px',
-          padding: isMobile ? '20px' : '40px',
-        }}>
-          <h1 style={styles.title}>Jukebox</h1>
-          <div style={{
-            background: theme.colors.surface,
-            borderRadius: theme.effects.borderRadius,
-            border: `2px solid ${theme.colors.border}`,
-            padding: isMobile ? '20px' : '30px',
-            boxShadow: theme.effects.shadow,
-            width: '100%',
-            boxSizing: 'border-box',
-          }}>
-            <h2 style={{
-              color: theme.colors.text,
-              fontFamily: theme.fonts.title,
-              fontSize: isMobile ? '1.5rem' : '2rem',
-              marginTop: 0,
-              marginBottom: '20px',
-              textAlign: 'center',
-            }}>
-              No Spotify Connect Instance Connected
-            </h2>
-            <p style={{
-              color: theme.colors.textSecondary,
-              fontSize: isMobile ? '0.9rem' : '1.1rem',
-              lineHeight: '1.6',
-              marginBottom: '30px',
-              textAlign: 'center',
-            }}>
-              To use this jukebox, you need to connect a Spotify Connect device from the Spotify app.
-            </p>
 
-            <div style={{
-              marginTop: '30px',
-            }}>
-              <h3 style={{
-                color: theme.colors.primary,
-                fontFamily: theme.fonts.title,
-                fontSize: isMobile ? '1.2rem' : '1.5rem',
-                marginBottom: '20px',
-                borderBottom: `2px solid ${theme.colors.border}`,
-                paddingBottom: '10px',
-              }}>
-                How to Connect:
-              </h3>
-
-              <ol style={{
-                color: theme.colors.text,
-                fontSize: isMobile ? '0.9rem' : '1rem',
-                lineHeight: '2',
-                paddingLeft: '20px',
-                margin: 0,
-              }}>
-                <li style={{ marginBottom: '15px' }}>
-                  <strong>Open the Spotify app</strong> on your phone, tablet, or computer
-                </li>
-                <li style={{ marginBottom: '15px' }}>
-                  <strong>Start playing any song</strong> or open a playlist/album
-                </li>
-                <li style={{ marginBottom: '15px' }}>
-                  <strong>Tap the "Devices Available" button</strong> (looks like a speaker or computer icon) at the bottom of the Now Playing screen
-                </li>
-                <li style={{ marginBottom: '15px' }}>
-                  <strong>Select "Jukebox"</strong> from the list of available devices
-                </li>
-                <li style={{ marginBottom: '15px' }}>
-                  <strong>Your music will start playing</strong> through the jukebox, and you'll see it appear here!
-                </li>
-              </ol>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const containerStyle = screenPlacement === 'halfTop' 
+    ? { ...styles.container, justifyContent: 'flex-start', height: '50vh', minHeight: '50vh', position: 'absolute' as const, top: 0, left: 0, right: 0 }
+    : styles.container;
+  
+  const contentStyle = screenPlacement === 'halfTop'
+    ? { ...styles.content, maxWidth: '100%', marginLeft: '0', marginRight: '0', padding: '0', height: '100%', overflow: 'hidden' }
+    : styles.content;
 
   return (
-    <div style={styles.container}>
-      {/* Theme selector - hidden in kiosk mode */}
-      {!isKioskMode && (
-        <div style={{
-          position: 'absolute',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 1000,
-        }}>
-          <select
-            value={themeName}
-            onChange={(e) => updateTheme(e.target.value)}
-            style={{
-              background: theme.colors.surface,
-              color: theme.colors.text,
-              border: `2px solid ${theme.colors.border}`,
-              borderRadius: theme.effects.borderRadius,
-              padding: '8px 12px',
-              fontFamily: theme.fonts.primary,
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-              outline: 'none',
-            }}
-          >
-            <option value="steampunk">Steampunk 1930s</option>
-            <option value="matrix">Matrix</option>
-          </select>
-        </div>
-      )}
-      <div style={styles.content}>
-        {!isConnected && isConnectionStatusKnown && (
-          <>
-            <h1 style={{ ...styles.title, fontSize: '3rem', marginBottom: '10px' }}>Jukebox</h1>
-            <p style={styles.status}>{statusMessage}</p>
-          </>
-        )}
-
+    <div style={containerStyle}>
+      <div style={contentStyle}>
         {playerState.isActive && playerState.currentTrack ? (
           <>
-            <div style={styles.player}>
-              <VolumeIndicator
-                volume={playerState.volume}
-                volumeMax={playerState.volumeMax}
-                theme={theme}
-                isMobile={isMobile}
-              >
-                {playerState.currentTrack?.album_cover_url && (
-                  <img
-                    src={getCachedImageUrl(playerState.currentTrack.album_cover_url)}
-                    alt={playerState.currentTrack.name || 'Album cover'}
-                    style={styles.albumArt}
-                  />
-                )}
-              </VolumeIndicator>
-              <div style={styles.trackInfo}>
-                <h2 style={{
-                  color: theme.colors.text,
-                  fontFamily: theme.fonts.title,
-                  margin: '10px 0',
-                  fontSize: '1.8rem',
-                  textShadow: theme.name === 'Matrix'
-                    ? `0 0 10px ${theme.colors.primary}, 0 0 20px ${theme.colors.primary}`
-                    : `0 2px 10px rgba(212, 175, 55, 0.3)`
-                }}>{playerState.currentTrack.name || 'Unknown Track'}</h2>
-                <h3 style={{
-                  color: theme.colors.textSecondary,
-                  fontFamily: theme.fonts.primary,
-                  margin: '5px 0',
-                  fontSize: '1.2rem',
-                  fontWeight: 'normal'
-                }}>{playerState.currentTrack.artist_names?.join(', ') || 'Unknown Artist'}</h3>
-                {playerState.currentTrack.album_name && (
-                  <p style={{
-                    fontSize: '0.9em',
+            {/* Default/Dash View Layout */}
+              <div style={styles.player}>
+                <VolumeIndicator
+                  volume={playerState.volume}
+                  volumeMax={playerState.volumeMax}
+                  theme={theme}
+                  isMobile={isMobile}
+                >
+                  {playerState.currentTrack?.album_cover_url && (
+                    <img
+                      src={getCachedImageUrl(playerState.currentTrack.album_cover_url)}
+                      alt={playerState.currentTrack.name || 'Album cover'}
+                      style={styles.albumArt}
+                    />
+                  )}
+                </VolumeIndicator>
+                <div style={styles.trackInfo}>
+                  <h2 style={{
+                    color: theme.colors.text,
+                    fontFamily: theme.fonts.title,
+                    margin: '10px 0',
+                    fontSize: '1.8rem',
+                    textShadow: theme.name === 'Matrix'
+                      ? `0 0 10px ${theme.colors.primary}, 0 0 20px ${theme.colors.primary}`
+                      : `0 2px 10px rgba(212, 175, 55, 0.3)`
+                  }}>{playerState.currentTrack.name || 'Unknown Track'}</h2>
+                  <h3 style={{
                     color: theme.colors.textSecondary,
-                    opacity: 0.8,
                     fontFamily: theme.fonts.primary,
-                    margin: '5px 0'
-                  }}>{playerState.currentTrack.album_name}</p>
-                )}
-              </div>
-              {/* Progress bar / Seek control */}
-              <div style={styles.progressContainer}>
-                <span style={styles.timeLabel}>{formatTime(playerState.position)}</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={playerState.currentTrack?.duration || 0}
-                  value={playerState.position}
-                  onChange={(e) => {
-                    // Position will be updated when seek completes
-                  }}
-                  onMouseUp={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    seek(parseInt(target.value));
-                  }}
-                  onTouchEnd={(e) => {
-                    const target = e.target as HTMLInputElement;
-                    seek(parseInt(target.value));
-                  }}
-                  style={styles.progressBar}
-                />
-                <span style={styles.timeLabel}>{formatTime(playerState.currentTrack?.duration || 0)}</span>
-              </div>
+                    margin: '5px 0',
+                    fontSize: '1.2rem',
+                    fontWeight: 'normal'
+                  }}>{playerState.currentTrack.artist_names?.join(', ') || 'Unknown Artist'}</h3>
+                  {playerState.currentTrack.album_name && (
+                    <p style={{
+                      fontSize: '0.9em',
+                      color: theme.colors.textSecondary,
+                      opacity: 0.8,
+                      fontFamily: theme.fonts.primary,
+                      margin: '5px 0'
+                    }}>{playerState.currentTrack.album_name}</p>
+                  )}
+                </div>
+                {/* Progress bar / Seek control */}
+                <div style={styles.progressContainer}>
+                  <span style={styles.timeLabel}>{formatTime(playerState.position)}</span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={playerState.currentTrack?.duration || 0}
+                    value={playerState.position}
+                    onChange={(e) => {
+                      // Position will be updated when seek completes
+                    }}
+                    onMouseUp={(e) => {
+                      const target = e.target as HTMLInputElement;
+                      seek(parseInt(target.value));
+                    }}
+                    onTouchEnd={(e) => {
+                      const target = e.target as HTMLInputElement;
+                      seek(parseInt(target.value));
+                    }}
+                    style={styles.progressBar}
+                  />
+                  <span style={styles.timeLabel}>{formatTime(playerState.currentTrack?.duration || 0)}</span>
+                </div>
 
-              {/* Main playback controls - hidden in dash view */}
-              {viewName !== 'dash' && (
+                {/* Main playback controls - hidden in dash view */}
+                {viewName !== 'dash' && (
                 <div style={styles.controls}>
                   <button
                     style={{ ...styles.button, ...(playerState.shuffleContext ? styles.buttonActive : {}) }}
@@ -779,13 +636,19 @@ export default function App() {
                   <span style={styles.volumeLabel}>{Math.round((playerState.volume / (playerState.volumeMax || 100)) * 100)}%</span>
                 </div>
               )}
-            </div>
+              </div>
           </>
         ) : (
-          <div style={styles.placeholder}>
-            <p>Waiting for playback...</p>
-            <p style={{ fontSize: '0.8em', opacity: 0.7 }}>Play music on Spotify to see it here.</p>
-          </div>
+          <WaitingForPlayback
+            screenPlacement={screenPlacement}
+            placeholderStyle={styles.placeholder}
+            containerStyle={screenPlacement === 'halfTop' ? containerStyle : undefined}
+            isConnected={isConnected}
+            isConnectionStatusKnown={isConnectionStatusKnown}
+            statusMessage={statusMessage}
+            theme={theme}
+            isMobile={isMobile}
+          />
         )}
 
         {/* Spotify ID Lists - Side by side on desktop, stacked on mobile - hidden in dash view */}
@@ -846,6 +709,7 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     paddingBottom: isMobile ? '0' : '0',
     paddingLeft: isMobile ? '0' : '0',
     paddingRight: isMobile ? '0' : '0',
+    width: '100%',
   },
   loadingContent: {
     display: 'flex',

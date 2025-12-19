@@ -102,6 +102,7 @@ export interface JukeboxStateContextValue {
   // UI state
   themeName: string;
   viewName: string;
+  screenPlacement: 'fullscreen' | 'halfTop';
   isKioskMode: boolean;
   hotkeys: HotkeyConfig | null;
   isThemeLoaded: boolean;
@@ -168,9 +169,19 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
   }, []);
   const [isConnected, setIsConnected] = useState(false);
 
-  // UI state
-  const [themeName, setThemeName] = useState<string>('steampunk');
-  const [viewName, setViewName] = useState<string>('default');
+  // UI state - read from query parameters
+  const getQueryParam = (name: string, defaultValue: string): string => {
+    if (typeof window === 'undefined') return defaultValue;
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name) || defaultValue;
+  };
+  
+  const [themeName, setThemeName] = useState<string>(() => getQueryParam('theme', 'steampunk'));
+  const [viewName, setViewName] = useState<string>(() => getQueryParam('view', 'default'));
+  const [screenPlacement, setScreenPlacement] = useState<'fullscreen' | 'halfTop'>(() => {
+    const placement = getQueryParam('placement', 'fullscreen');
+    return placement === 'halfTop' ? 'halfTop' : 'fullscreen';
+  });
   const [isKioskMode, setIsKioskMode] = useState<boolean>(false);
   const [hotkeys, setHotkeys] = useState<HotkeyConfig | null>(null);
   const [isThemeLoaded, setIsThemeLoaded] = useState<boolean>(false);
@@ -390,6 +401,50 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     }
   }, [setIsConnected, setStatusMessage, setPlayerState]);
 
+  // Initialize theme and view from query parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const themeParam = urlParams.get('theme');
+    const viewParam = urlParams.get('view');
+    const placementParam = urlParams.get('placement');
+    
+    if (themeParam) {
+      setThemeName(themeParam);
+    }
+    if (viewParam) {
+      setViewName(viewParam);
+    }
+    if (placementParam) {
+      setScreenPlacement(placementParam === 'halfTop' ? 'halfTop' : 'fullscreen');
+    }
+    
+    setIsThemeLoaded(true);
+    setIsViewLoaded(true);
+  }, []);
+
+  // Listen for URL changes (e.g., browser back/forward)
+  useEffect(() => {
+    const handlePopState = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const themeParam = urlParams.get('theme');
+      const viewParam = urlParams.get('view');
+      const placementParam = urlParams.get('placement');
+      
+      if (themeParam) {
+        setThemeName(themeParam);
+      }
+      if (viewParam) {
+        setViewName(viewParam);
+      }
+      if (placementParam) {
+        setScreenPlacement(placementParam === 'halfTop' ? 'halfTop' : 'fullscreen');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const fetchKioskMode = useCallback(async () => {
     try {
       const response = await apiCall('/api/kiosk', 'GET', undefined);
@@ -403,31 +458,6 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     }
   }, [apiCall]);
 
-  const fetchTheme = useCallback(async () => {
-    try {
-      const response = await apiCall('/api/theme', 'GET', undefined);
-      if (response && response.theme) {
-        setThemeName(response.theme);
-      }
-      setIsThemeLoaded(true);
-    } catch (error) {
-      console.error('Failed to fetch theme:', error);
-      setIsThemeLoaded(true); // Mark as loaded even on error to prevent infinite spinner
-    }
-  }, [apiCall]);
-
-  const fetchView = useCallback(async () => {
-    try {
-      const response = await apiCall('/api/view', 'GET', undefined);
-      if (response && response.view) {
-        setViewName(response.view);
-      }
-      setIsViewLoaded(true);
-    } catch (error) {
-      console.error('Failed to fetch view:', error);
-      setIsViewLoaded(true); // Mark as loaded even on error to prevent infinite spinner
-    }
-  }, [apiCall]);
 
   const fetchHotkeys = useCallback(async () => {
     try {
@@ -453,8 +483,6 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
         if (configVersionRef.current !== null && configVersionRef.current !== currentVersion) {
           console.log('Configuration changed, refreshing theme, view, hotkeys, and kiosk mode...');
           // Refresh all config items
-          await fetchTheme();
-          await fetchView();
           await fetchHotkeys();
           await fetchKioskMode();
         }
@@ -470,7 +498,7 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     } catch (error) {
       console.error('Failed to check config version:', error);
     }
-  }, [apiCall, fetchTheme, fetchView, fetchHotkeys, fetchKioskMode]);
+  }, [apiCall, fetchHotkeys, fetchKioskMode]);
 
 
   // Player actions
@@ -632,8 +660,6 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
   // Initialize on mount
   useEffect(() => {
     fetchKioskMode();
-    fetchTheme();
-    fetchView();
     fetchHotkeys();
     fetchPlaybackStatus();
 
@@ -693,7 +719,7 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
         configPollIntervalRef.current = null;
       }
     };
-  }, [fetchPlaybackStatus, fetchTheme, fetchView, fetchKioskMode, fetchHotkeys, pollEvents, checkConfigVersion]);
+  }, [fetchPlaybackStatus, fetchKioskMode, fetchHotkeys, pollEvents, checkConfigVersion]);
 
   // Update position during playback
   useEffect(() => {
@@ -734,6 +760,7 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     isConnected,
     themeName,
     viewName,
+    screenPlacement,
     isKioskMode,
     hotkeys,
     isThemeLoaded,

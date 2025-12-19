@@ -12,9 +12,10 @@ interface SpotifyId {
 
 export default function Manage() {
   const [hotkeys, setHotkeys] = useState<HotkeyConfig | null>(null);
-  const [themeName, setThemeName] = useState<string>('steampunk');
-  const [theme, setTheme] = useState<Theme>(steampunkTheme);
-  const [viewName, setViewName] = useState<string>('default');
+  // Get theme from query parameter, default to 'steampunk'
+  const urlParams = new URLSearchParams(window.location.search);
+  const themeNameFromUrl = urlParams.get('theme') || 'steampunk';
+  const [theme, setTheme] = useState<Theme>(themes[themeNameFromUrl] || steampunkTheme);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string>('');
   const [capturingKey, setCapturingKey] = useState<string | null>(null);
@@ -27,6 +28,13 @@ export default function Manage() {
   const [searching, setSearching] = useState(false);
   const [apiStats, setApiStats] = useState<any>(null);
   const isInitialLoad = useRef(true);
+  
+  // Link generator state
+  const [linkTheme, setLinkTheme] = useState<string>('steampunk');
+  const [linkView, setLinkView] = useState<string>('default');
+  const [linkPlacement, setLinkPlacement] = useState<string>('fullscreen');
+  const [generatedLink, setGeneratedLink] = useState<string>('');
+  const [linkCopied, setLinkCopied] = useState<boolean>(false);
 
   const fetchHotkeys = useCallback(async () => {
     try {
@@ -40,40 +48,37 @@ export default function Manage() {
     }
   }, []);
 
-  const fetchTheme = useCallback(async () => {
-    try {
-      const response = await fetch(`${API_BASE}/api/theme`);
-      const data = await response.json();
-      if (data && data.theme) {
-        const themeKey = data.theme;
-        setThemeName(themeKey);
-        if (themes[themeKey]) {
-          setTheme(themes[themeKey]);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch theme:', error);
-    }
-  }, []);
-
-  const fetchView = useCallback(async () => {
-    try {
-      const response = await fetch(`${API_BASE}/api/view`);
-      const data = await response.json();
-      if (data && data.view) {
-        setViewName(data.view);
-      }
-    } catch (error) {
-      console.error('Failed to fetch view:', error);
-    }
-  }, []);
 
   const fetchSpotifyIds = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE}/api/spotify/ids`);
       const data = await response.json();
       if (data && data.ids) {
-        setSpotifyIds(data.ids);
+        // Fetch metadata for each ID
+        const idsWithMetadata = await Promise.all(
+          data.ids.map(async (id: string) => {
+            try {
+              const metadataResponse = await fetch(`${API_BASE}/api/spotify/metadata/${encodeURIComponent(id)}`);
+              if (metadataResponse.ok) {
+                const metadata = await metadataResponse.json();
+                return {
+                  id: metadata.id || id,
+                  name: metadata.name || 'Unknown',
+                  type: metadata.type || 'unknown',
+                };
+              }
+            } catch (error) {
+              console.error(`Failed to fetch metadata for ${id}:`, error);
+            }
+            // Fallback if metadata fetch fails
+            return {
+              id: id,
+              name: 'Unknown',
+              type: 'unknown',
+            };
+          })
+        );
+        setSpotifyIds(idsWithMetadata);
       }
     } catch (error) {
       console.error('Failed to fetch Spotify IDs:', error);
@@ -85,7 +90,31 @@ export default function Manage() {
       const response = await fetch(`${API_BASE}/api/spotify/recent-artists`);
       const data = await response.json();
       if (data && data.ids) {
-        setRecentArtists(data.ids);
+        // Fetch metadata for each artist ID
+        const artistsWithMetadata = await Promise.all(
+          data.ids.map(async (id: string) => {
+            try {
+              const metadataResponse = await fetch(`${API_BASE}/api/spotify/metadata/${encodeURIComponent(id)}`);
+              if (metadataResponse.ok) {
+                const metadata = await metadataResponse.json();
+                return {
+                  id: metadata.id || id,
+                  name: metadata.name || 'Unknown',
+                  type: metadata.type || 'artist',
+                };
+              }
+            } catch (error) {
+              console.error(`Failed to fetch metadata for ${id}:`, error);
+            }
+            // Fallback if metadata fetch fails
+            return {
+              id: id,
+              name: 'Unknown',
+              type: 'artist',
+            };
+          })
+        );
+        setRecentArtists(artistsWithMetadata);
       }
     } catch (error) {
       console.error('Failed to fetch recent artists:', error);
@@ -157,8 +186,6 @@ export default function Manage() {
 
   useEffect(() => {
     fetchHotkeys();
-    fetchTheme();
-    fetchView();
     fetchSpotifyIds();
     fetchRecentArtists();
     fetchRecentArtistsLimit();
@@ -167,7 +194,16 @@ export default function Manage() {
     setTimeout(() => {
       isInitialLoad.current = false;
     }, 1000);
-  }, [fetchHotkeys, fetchTheme, fetchView, fetchSpotifyIds, fetchRecentArtists, fetchRecentArtistsLimit, fetchApiStats]);
+  }, [fetchHotkeys, fetchSpotifyIds, fetchRecentArtists, fetchRecentArtistsLimit, fetchApiStats]);
+
+  // Update theme from URL parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const themeKey = urlParams.get('theme') || 'steampunk';
+    if (themes[themeKey]) {
+      setTheme(themes[themeKey]);
+    }
+  }, []);
 
   // Poll API stats every 5 seconds
   useEffect(() => {
@@ -193,62 +229,6 @@ export default function Manage() {
     }
   };
 
-  const saveTheme = async (themeToSave: string) => {
-    try {
-      const response = await fetch(`${API_BASE}/api/theme`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ theme: themeToSave }),
-      });
-      const data = await response.json();
-      if (data.theme) {
-        // Update local theme immediately
-        if (themes[data.theme]) {
-          setTheme(themes[data.theme]);
-        }
-      } else {
-        console.error('Failed to save theme');
-      }
-    } catch (error) {
-      console.error('Error saving theme:', error);
-    }
-  };
-
-  const saveView = async (viewToSave: string) => {
-    try {
-      const response = await fetch(`${API_BASE}/api/view`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ view: viewToSave }),
-      });
-      const data = await response.json();
-      if (!data.view) {
-        console.error('Failed to save view');
-      }
-    } catch (error) {
-      console.error('Error saving view:', error);
-    }
-  };
-
-  // Update theme when themeName changes and auto-save
-  useEffect(() => {
-    if (themes[themeName]) {
-      setTheme(themes[themeName]);
-      // Auto-save theme when it changes (but not on initial load)
-      if (!isInitialLoad.current) {
-        saveTheme(themeName);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [themeName]);
-
-  // Auto-save view when it changes
-  useEffect(() => {
-    if (!isInitialLoad.current) {
-      saveView(viewName);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewName]);
 
   // Auto-save hotkeys when they change
   useEffect(() => {
@@ -583,41 +563,10 @@ export default function Manage() {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          gridTemplateColumns: '1fr',
           gap: '40px',
           marginBottom: '40px',
         }}>
-          {/* Theme & View Configuration */}
-          <div style={styles.card}>
-            <h2 style={styles.cardTitle}>Theme & View</h2>
-            <div style={{ marginBottom: '20px' }}>
-              <label style={styles.label}>
-                Select Theme:
-              </label>
-              <select
-                value={themeName}
-                onChange={(e) => setThemeName(e.target.value)}
-                style={styles.select}
-              >
-                <option value="steampunk">Steampunk 1930s</option>
-                <option value="matrix">Matrix</option>
-              </select>
-            </div>
-            <div>
-              <label style={styles.label}>
-                Select View:
-              </label>
-              <select
-                value={viewName}
-                onChange={(e) => setViewName(e.target.value)}
-                style={styles.select}
-              >
-                <option value="default">Default (Controls & Queue)</option>
-                <option value="dash">Dash (Track Only)</option>
-              </select>
-            </div>
-          </div>
-
           {/* Settings */}
           <div style={styles.card}>
             <h2 style={styles.cardTitle}>Settings</h2>
@@ -652,6 +601,124 @@ export default function Manage() {
                   />
                 </div>
               </>
+            )}
+          </div>
+        </div>
+
+        {/* Link Generator */}
+        <div style={styles.card}>
+          <h2 style={styles.cardTitle}>Link Generator</h2>
+          <p style={styles.helpText}>
+            Generate a link with custom theme and view settings. Share this link to open the jukebox with your preferred configuration.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <label style={styles.label}>
+                Theme:
+              </label>
+              <select
+                value={linkTheme}
+                onChange={(e) => {
+                  setLinkTheme(e.target.value);
+                  setGeneratedLink('');
+                  setLinkCopied(false);
+                }}
+                style={styles.select}
+              >
+                <option value="steampunk">Steampunk 1930s</option>
+                <option value="matrix">Matrix</option>
+              </select>
+            </div>
+            <div>
+              <label style={styles.label}>
+                View:
+              </label>
+              <select
+                value={linkView}
+                onChange={(e) => {
+                  setLinkView(e.target.value);
+                  setGeneratedLink('');
+                  setLinkCopied(false);
+                }}
+                style={styles.select}
+              >
+                <option value="default">Default (Controls & Queue)</option>
+                <option value="dash">Dash (Track Only)</option>
+              </select>
+            </div>
+            <div>
+              <label style={styles.label}>
+                Screen Placement:
+              </label>
+              <select
+                value={linkPlacement}
+                onChange={(e) => {
+                  setLinkPlacement(e.target.value);
+                  setGeneratedLink('');
+                  setLinkCopied(false);
+                }}
+                style={styles.select}
+              >
+                <option value="fullscreen">Full Screen</option>
+                <option value="halfTop">Half Top</option>
+              </select>
+            </div>
+            <button
+              onClick={() => {
+                const baseUrl = window.location.origin;
+                const link = `${baseUrl}/?theme=${linkTheme}&view=${linkView}&placement=${linkPlacement}`;
+                setGeneratedLink(link);
+                setLinkCopied(false);
+              }}
+              style={styles.button}
+            >
+              Generate Link
+            </button>
+            {generatedLink && (
+              <div style={{
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'center',
+              }}>
+                <input
+                  type="text"
+                  value={generatedLink}
+                  readOnly
+                  style={{
+                    ...styles.input,
+                    flex: 1,
+                    fontFamily: 'monospace',
+                    fontSize: '0.9rem',
+                  }}
+                  onClick={(e) => (e.target as HTMLInputElement).select()}
+                />
+                <button
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(generatedLink);
+                      setLinkCopied(true);
+                      setTimeout(() => setLinkCopied(false), 2000);
+                    } catch (error) {
+                      // Fallback for older browsers
+                      const input = document.createElement('input');
+                      input.value = generatedLink;
+                      document.body.appendChild(input);
+                      input.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(input);
+                      setLinkCopied(true);
+                      setTimeout(() => setLinkCopied(false), 2000);
+                    }
+                  }}
+                  style={{
+                    ...styles.buttonSmall,
+                    ...(linkCopied ? styles.buttonSmallActive : {}),
+                    minWidth: '100px',
+                  }}
+                >
+                  {linkCopied ? 'Copied!' : 'Copy'}
+                </button>
+              </div>
             )}
           </div>
         </div>
