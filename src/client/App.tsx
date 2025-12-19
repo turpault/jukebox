@@ -653,8 +653,8 @@ export default function App() {
           />
         )}
 
-        {/* Spotify ID Lists - Side by side on desktop, stacked on mobile - hidden in dash view */}
-        {viewName !== 'dash' && (
+        {/* Spotify ID Lists - Side by side on desktop, stacked on mobile - hidden in dash and controls views */}
+        {viewName !== 'dash' && viewName !== 'controls' && (
           <div style={{
             display: 'flex',
             flexDirection: isMobile ? 'column' : 'row',
@@ -778,8 +778,9 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   player: {
     position: 'relative',
     width: '100%',
-    minHeight: isMobile ? '600px' : '700px',
+    height: '100%',
     display: 'block',
+    overflow: 'visible',
     // Artwork bottom position for reference: top (20/30) + height (250/300) = 270/330
   },
   albumArtContainer: {
@@ -807,7 +808,7 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   },
   controls: {
     position: 'absolute',
-    top: isMobile ? '350px' : '420px',
+    bottom: isMobile ? '50px' : '60px',
     left: isMobile ? '20px' : '30px',
     right: isMobile ? '20px' : '30px',
     display: 'flex',
@@ -815,7 +816,7 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     alignItems: 'center',
     flexWrap: 'nowrap',
     justifyContent: 'center',
-    zIndex: 1,
+    zIndex: 10,
   },
   button: {
     background: `linear-gradient(135deg, ${theme.colors.surface} 0%, ${theme.colors.border} 100%)`,
@@ -884,13 +885,13 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   },
   volumeContainer: {
     position: 'absolute',
-    top: isMobile ? '450px' : '520px',
-    left: isMobile ? '20px' : '30px',
+    // Position above progress bar - progress bar top is 245px/305px, place volume ~30px above
+    top: isMobile ? '215px' : '275px',
+    left: isMobile ? '290px' : '360px',
     right: isMobile ? '20px' : '30px',
     display: 'flex',
     alignItems: 'center',
     gap: isMobile ? '8px' : '10px',
-    maxWidth: isMobile ? 'none' : '300px',
     padding: isMobile ? '0 10px' : '0',
     zIndex: 1,
   },
