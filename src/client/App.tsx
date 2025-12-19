@@ -880,10 +880,11 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   timeLabel: {
     fontSize: isMobile ? '0.8em' : '0.9em',
     color: theme.colors.textSecondary,
-    minWidth: isMobile ? '40px' : '45px',
+    width: isMobile ? '40px' : '45px',
     textAlign: 'center',
     fontFamily: theme.fonts.primary,
     fontVariantNumeric: 'tabular-nums',
+    flexShrink: 0,
   },
   volumeContainer: {
     position: 'absolute',
@@ -898,10 +899,11 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     zIndex: 1,
   },
   iconVolumeContainer: {
-    minWidth: isMobile ? '40px' : '45px',
+    width: isMobile ? '40px' : '45px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   // Icon styles - simple shapes
   iconPlay: {
@@ -1179,10 +1181,11 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   volumeLabel: {
     fontSize: isMobile ? '0.8em' : '0.9em',
     color: theme.colors.textSecondary,
-    minWidth: isMobile ? '40px' : '45px',
+    width: isMobile ? '40px' : '45px',
     textAlign: 'center',
     fontFamily: theme.fonts.primary,
     fontVariantNumeric: 'tabular-nums',
+    flexShrink: 0,
   },
   placeholder: {
     color: theme.colors.textSecondary,
