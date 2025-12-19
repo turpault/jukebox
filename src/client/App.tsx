@@ -427,9 +427,9 @@ export default function App() {
   }
 
 
-  const containerStyle = screenPlacement === 'halfTop' 
-    ? { ...styles.container, justifyContent: 'flex-start', height: '40vh', minHeight: '40vh', position: 'absolute' as const, top: 0, left: 0, right: 0 }
-    : styles.container;
+    const containerStyle = screenPlacement === 'halfTop' 
+      ? { ...styles.container, justifyContent: 'flex-start', height: '63vh', minHeight: '63vh', position: 'absolute' as const, top: 0, left: 0, right: 0, padding: '10px', boxSizing: 'border-box' as const }
+      : styles.container;
   
   const contentStyle = screenPlacement === 'halfTop'
     ? { ...styles.content, maxWidth: '100%', marginLeft: '0', marginRight: '0', padding: '0', height: '100%', overflow: 'hidden' }
@@ -472,17 +472,30 @@ export default function App() {
                     fontFamily: theme.fonts.primary,
                     margin: '5px 0',
                     fontSize: '1.2rem',
-                    fontWeight: 'normal'
-                  }}>{playerState.currentTrack.artist_names?.join(', ') || 'Unknown Artist'}</h3>
-                  {playerState.currentTrack.album_name && (
-                    <p style={{
-                      fontSize: '0.9em',
-                      color: theme.colors.textSecondary,
-                      opacity: 0.8,
-                      fontFamily: theme.fonts.primary,
-                      margin: '5px 0'
-                    }}>{playerState.currentTrack.album_name}</p>
-                  )}
+                    fontWeight: 'normal',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                  }}>
+                    <span style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}>{playerState.currentTrack.artist_names?.join(', ') || 'Unknown Artist'}</span>
+                    {playerState.currentTrack.album_name && (
+                      <>
+                        <span style={{ flexShrink: 0 }}>•</span>
+                        <span style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          opacity: 0.8,
+                        }}>{playerState.currentTrack.album_name}</span>
+                      </>
+                    )}
+                  </h3>
                 </div>
                 {/* Progress bar / Seek control */}
                 <div style={styles.progressContainer}>
@@ -580,6 +593,27 @@ export default function App() {
                       <RepeatIcon color={theme.colors.text} size={20} />
                     )}
                   </button>
+                  <button
+                    style={{ ...styles.button, ...(isMuted ? styles.buttonActive : {}) }}
+                    onClick={toggleMute}
+                    title={isMuted ? "Unmute" : "Mute"}
+                    onMouseEnter={(e) => {
+                      if (!isMuted) {
+                        Object.assign(e.currentTarget.style, styles.buttonHover);
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isMuted) {
+                        Object.assign(e.currentTarget.style, styles.button);
+                      }
+                    }}
+                  >
+                    {isMuted ? (
+                      <MuteIcon color={theme.colors.text} size={20} />
+                    ) : (
+                      <VolumeIcon color={theme.colors.text} size={20} />
+                    )}
+                  </button>
                 </div>
               )}
 
@@ -612,19 +646,6 @@ export default function App() {
                     }}
                     style={styles.volumeSlider}
                   />
-                  <button
-                    style={styles.muteButton}
-                    onClick={toggleMute}
-                    title={isMuted ? "Unmute" : "Mute"}
-                    onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.muteButtonHover)}
-                    onMouseLeave={(e) => Object.assign(e.currentTarget.style, styles.muteButton)}
-                  >
-                    {isMuted ? (
-                      <MuteIcon color={theme.colors.textSecondary} size={16} />
-                    ) : (
-                      <VolumeIcon color={theme.colors.textSecondary} size={16} />
-                    )}
-                  </button>
                   <span style={styles.volumeLabel}>{Math.round((playerState.volume / (playerState.volumeMax || 100)) * 100)}%</span>
                 </div>
               )}
@@ -751,7 +772,6 @@ const createStyles = (theme: Theme): Record<string, React.CSSProperties> => ({
     marginRight: '180px',
     background: theme.colors.surface,
     borderRadius: theme.effects.borderRadius,
-    border: `2px solid ${theme.colors.border}`,
     boxShadow: theme.effects.shadow,
     boxSizing: 'border-box',
   },
@@ -775,8 +795,8 @@ const createStyles = (theme: Theme): Record<string, React.CSSProperties> => ({
     zIndex: 1,
   },
   albumArt: {
-    width: '300px',
-    height: '300px',
+    width: '150px',
+    height: '150px',
     maxWidth: '100%',
     borderRadius: theme.effects.borderRadius,
     boxShadow: theme.effects.shadow,
@@ -786,14 +806,14 @@ const createStyles = (theme: Theme): Record<string, React.CSSProperties> => ({
   trackInfo: {
     position: 'absolute',
     top: '30px',
-    left: '360px',
+    left: '210px', // 30px (left margin) + 150px (artwork width) + 30px (gap)
     right: '30px',
     textAlign: 'left',
     zIndex: 1,
   },
   controls: {
     position: 'absolute',
-    bottom: '60px',
+    bottom: '18px',
     left: '30px',
     right: '30px',
     display: 'flex',
@@ -805,16 +825,16 @@ const createStyles = (theme: Theme): Record<string, React.CSSProperties> => ({
   },
   button: {
     background: `linear-gradient(135deg, ${theme.colors.surface} 0%, ${theme.colors.border} 100%)`,
-    border: `2px solid ${theme.colors.border}`,
+    border: 'none',
     color: theme.colors.text,
     fontSize: '2rem',
     cursor: 'pointer',
     padding: '12px',
-    borderRadius: '50%',
+    borderRadius: theme.effects.borderRadius,
     transition: 'all 0.3s ease',
     boxShadow: `0 4px 15px rgba(0, 0, 0, 0.5)`,
-    minWidth: '60px',
-    minHeight: '60px',
+    width: '64px',
+    height: '64px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -833,15 +853,15 @@ const createStyles = (theme: Theme): Record<string, React.CSSProperties> => ({
     boxShadow: theme.name === 'Matrix'
       ? `0 0 25px ${theme.colors.primary}, 0 4px 15px rgba(0, 0, 0, 0.5)`
       : `0 0 25px rgba(212, 175, 55, 0.6), 0 4px 15px rgba(0, 0, 0, 0.5)`,
-    border: `2px solid ${theme.colors.primary}`,
+    border: 'none',
   },
   progressContainer: {
     position: 'absolute',
     // Align bottom with artwork bottom
-    // Artwork bottom: top (30) + height (300) = 330 from top
+    // Artwork bottom: top (30) + height (150) = 180 from top
     // Position so container bottom aligns - estimate container height ~25px
-    top: '305px',
-    left: '360px',
+    top: '155px',
+    left: '210px', // 30px (left margin) + 150px (artwork width) + 30px (gap)
     right: '30px',
     display: 'flex',
     alignItems: 'flex-end',
@@ -871,9 +891,9 @@ const createStyles = (theme: Theme): Record<string, React.CSSProperties> => ({
   },
   volumeContainer: {
     position: 'absolute',
-    // Position above progress bar - progress bar top is 305px, place volume ~30px above
-    top: '275px',
-    left: '360px',
+    // Position above progress bar - progress bar top is 155px, place volume ~30px above
+    top: '125px',
+    left: '210px', // 30px (left margin) + 150px (artwork width) + 30px (gap)
     right: '30px',
     display: 'flex',
     alignItems: 'center',

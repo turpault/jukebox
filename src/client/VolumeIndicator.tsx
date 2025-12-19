@@ -54,8 +54,8 @@ export const VolumeIndicator: React.FC<VolumeIndicatorProps> = ({
 
   const styles = {
     volumeIndicator: {
-      width: '300px',
-      height: '300px',
+      width: '150px',
+      height: '150px',
       maxWidth: '100%',
       borderRadius: theme.effects.borderRadius,
       boxShadow: theme.effects.shadow,
@@ -65,28 +65,28 @@ export const VolumeIndicator: React.FC<VolumeIndicatorProps> = ({
       flexDirection: 'column' as const,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: '20px',
-      padding: '30px',
+      gap: '10px',
+      padding: '15px',
       boxSizing: 'border-box' as const,
     },
     volumeIndicatorIcon: {
       position: 'relative' as const,
-      width: '60px',
-      height: '48px',
+      width: '30px',
+      height: '24px',
     },
     volumeIndicatorIconBody: {
       position: 'absolute' as const,
       left: 0,
       top: '50%',
       transform: 'translateY(-50%)',
-      width: '30px',
-      height: '30px',
-      border: `3px solid ${theme.colors.primary}`,
+      width: '15px',
+      height: '15px',
+      border: `2px solid ${theme.colors.primary}`,
       borderRight: 'none',
-      borderRadius: '4px 0 0 4px',
+      borderRadius: '3px 0 0 3px',
       boxShadow: theme.name === 'Matrix'
-        ? `0 0 10px ${theme.colors.primary}`
-        : `0 0 10px rgba(212, 175, 55, 0.5)`,
+        ? `0 0 5px ${theme.colors.primary}`
+        : `0 0 5px rgba(212, 175, 55, 0.5)`,
     },
     volumeIndicatorIconWaves: {
       position: 'absolute' as const,
@@ -95,46 +95,46 @@ export const VolumeIndicator: React.FC<VolumeIndicatorProps> = ({
       transform: 'translateY(-50%)',
       width: 0,
       height: 0,
-      borderTop: `9px solid transparent`,
-      borderBottom: `9px solid transparent`,
-      borderLeft: `18px solid ${theme.colors.primary}`,
+      borderTop: `4px solid transparent`,
+      borderBottom: `4px solid transparent`,
+      borderLeft: `9px solid ${theme.colors.primary}`,
       filter: theme.name === 'Matrix'
-        ? `drop-shadow(0 0 5px ${theme.colors.primary})`
-        : `drop-shadow(0 0 5px rgba(212, 175, 55, 0.5))`,
+        ? `drop-shadow(0 0 3px ${theme.colors.primary})`
+        : `drop-shadow(0 0 3px rgba(212, 175, 55, 0.5))`,
     },
     volumeIndicatorBars: {
       display: 'flex',
       alignItems: 'flex-end' as const,
       justifyContent: 'center',
-      gap: '4px',
+      gap: '2px',
       width: '100%',
-      height: '120px',
-      padding: '10px',
+      height: '60px',
+      padding: '5px',
     },
     volumeIndicatorBar: {
       flex: 1,
-      minWidth: '6px',
+      minWidth: '3px',
       background: theme.colors.progressTrack,
-      borderRadius: '2px',
+      borderRadius: '1px',
       transition: 'all 0.2s ease',
       border: `1px solid ${theme.colors.border}`,
     },
     volumeIndicatorBarActive: {
       background: `linear-gradient(to top, ${theme.colors.primary} 0%, ${theme.colors.secondary} 100%)`,
       boxShadow: theme.name === 'Matrix'
-        ? `0 0 8px ${theme.colors.primary}, inset 0 0 4px ${theme.colors.primary}`
-        : `0 0 8px rgba(212, 175, 55, 0.6), inset 0 0 4px rgba(212, 175, 55, 0.4)`,
+        ? `0 0 4px ${theme.colors.primary}, inset 0 0 2px ${theme.colors.primary}`
+        : `0 0 4px rgba(212, 175, 55, 0.6), inset 0 0 2px rgba(212, 175, 55, 0.4)`,
       border: `1px solid ${theme.colors.primary}`,
     },
     volumeIndicatorLabel: {
-      fontSize: '2.5rem',
+      fontSize: '1.5rem',
       fontFamily: theme.fonts.title,
       color: theme.colors.primary,
       fontWeight: 'bold' as const,
       textShadow: theme.name === 'Matrix'
-        ? `0 0 10px ${theme.colors.primary}, 0 0 20px ${theme.colors.primary}`
-        : `0 0 15px rgba(212, 175, 55, 0.6), 0 2px 10px rgba(212, 175, 55, 0.4)`,
-      letterSpacing: theme.name === 'Matrix' ? '0.1em' : '0.05em',
+        ? `0 0 5px ${theme.colors.primary}, 0 0 10px ${theme.colors.primary}`
+        : `0 0 8px rgba(212, 175, 55, 0.6), 0 1px 5px rgba(212, 175, 55, 0.4)`,
+      letterSpacing: theme.name === 'Matrix' ? '0.05em' : '0.025em',
     },
   };
 

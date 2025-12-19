@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Theme } from './types';
+import { DisconnectedIcon } from './Icons';
 
 interface WaitingForPlaybackProps {
   screenPlacement: 'fullscreen' | 'halfTop';
@@ -41,46 +42,41 @@ export const WaitingForPlayback: React.FC<WaitingForPlaybackProps> = ({
       padding: '30px',
       boxShadow: theme.effects.shadow,
       width: '100%',
+      height: '50%',
       boxSizing: 'border-box',
       maxWidth: '800px',
+      display: 'flex',
+      flexDirection: 'row',
+      gap: '30px',
+      alignItems: 'flex-start',
     }}>            
-      <h2 style={{
-        color: theme.colors.text,
-        fontFamily: theme.fonts.title,
-        fontSize: '2rem',
-        marginTop: 0,
-        marginBottom: '20px',
-        textAlign: 'center',
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
       }}>
-        No Spotify Connect Instance Connected
-      </h2>
-      <p style={{
-        color: theme.colors.textSecondary,
-        fontSize: '1.1rem',
-        lineHeight: '1.6',
-        textAlign: 'center',
-      }}>
-        To use this jukebox, you need to connect a Spotify Connect device from the Spotify app.
-      </p>
+        <DisconnectedIcon color={theme.colors.textSecondary} size={64} />
+      </div>
 
       <div style={{
-        marginTop: '10px',
+        flex: 1,
       }}>
         <h3 style={{
           color: theme.colors.primary,
           fontFamily: theme.fonts.title,
-          fontSize: '1.3rem',
-          marginBottom: '8px',
+          fontSize: '1rem',
+          marginBottom: '6px',
           marginTop: 0,
           borderBottom: `2px solid ${theme.colors.border}`,
-          paddingBottom: '5px',
+          paddingBottom: '3px',
         }}>
           How to Connect:
         </h3>
 
         <ol style={{
           color: theme.colors.text,
-          fontSize: '0.9rem',
+          fontSize: '0.75rem',
           lineHeight: '1.2',
           paddingLeft: '20px',
           margin: 0,

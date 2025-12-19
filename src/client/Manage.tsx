@@ -31,9 +31,8 @@ export default function Manage() {
   
   // Link generator state
   const [linkTheme, setLinkTheme] = useState<string>('steampunk');
+  const [linkView, setLinkView] = useState<string>('default');
   const [linkPlacement, setLinkPlacement] = useState<string>('fullscreen');
-  const [linkControls, setLinkControls] = useState<string>('false');
-  const [linkQueues, setLinkQueues] = useState<string>('false');
   const [generatedLink, setGeneratedLink] = useState<string>('');
   const [linkCopied, setLinkCopied] = useState<boolean>(false);
 
@@ -657,6 +656,24 @@ export default function Manage() {
             </div>
             <div>
               <label style={styles.label}>
+                View:
+              </label>
+              <select
+                value={linkView}
+                onChange={(e) => {
+                  setLinkView(e.target.value);
+                  setGeneratedLink('');
+                  setLinkCopied(false);
+                }}
+                style={styles.select}
+              >
+                <option value="default">Default (Controls & Queue)</option>
+                <option value="dash">Dash (Track Only)</option>
+                <option value="controls">Controls Only</option>
+              </select>
+            </div>
+            <div>
+              <label style={styles.label}>
                 Screen Placement:
               </label>
               <select
@@ -672,49 +689,10 @@ export default function Manage() {
                 <option value="halfTop">Half Top</option>
               </select>
             </div>
-            <div>
-              <label style={styles.label}>Show Controls:</label>
-              <select
-                value={linkControls}
-                onChange={(e) => {
-                  setLinkControls(e.target.value);
-                  setGeneratedLink('');
-                  setLinkCopied(false);
-                }}
-                style={styles.select}
-              >
-                <option value="false">No</option>
-                <option value="true">Yes</option>
-              </select>
-            </div>
-            <div>
-              <label style={styles.label}>Show Queues:</label>
-              <select
-                value={linkQueues}
-                onChange={(e) => {
-                  setLinkQueues(e.target.value);
-                  setGeneratedLink('');
-                  setLinkCopied(false);
-                }}
-                style={styles.select}
-              >
-                <option value="false">No</option>
-                <option value="true">Yes</option>
-              </select>
-            </div>
             <button
               onClick={() => {
                 const baseUrl = window.location.origin;
-                const params = new URLSearchParams();
-                params.set('theme', linkTheme);
-                params.set('placement', linkPlacement);
-                if (linkControls === 'true') {
-                  params.set('controls', 'true');
-                }
-                if (linkQueues === 'true') {
-                  params.set('queues', 'true');
-                }
-                const link = `${baseUrl}/?${params.toString()}`;
+                const link = `${baseUrl}/?theme=${linkTheme}&view=${linkView}&placement=${linkPlacement}`;
                 setGeneratedLink(link);
                 setLinkCopied(false);
               }}

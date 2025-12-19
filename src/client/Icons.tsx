@@ -91,3 +91,16 @@ export const MuteIcon: React.FC<IconProps> = ({ color = 'currentColor', size = 2
   </svg>
 );
 
+export const DisconnectedIcon: React.FC<IconProps> = ({ color = 'currentColor', size = 64 }) => (
+  <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {/* Speaker/Device icon */}
+    <rect x="8" y="16" width="24" height="32" rx="4" stroke={color} strokeWidth="3" fill="none"/>
+    <rect x="12" y="20" width="16" height="24" rx="2" fill={color} opacity="0.3"/>
+    <circle cx="20" cy="32" r="4" fill={color} opacity="0.5"/>
+    {/* Slash line indicating disconnected */}
+    <line x1="36" y1="20" x2="52" y2="44" stroke={color} strokeWidth="3" strokeLinecap="round"/>
+    {/* Signal waves (faded) */}
+    <path d="M36 28L40 24M36 32L44 24M36 36L48 24" stroke={color} strokeWidth="2" strokeLinecap="round" opacity="0.4"/>
+  </svg>
+);
+
