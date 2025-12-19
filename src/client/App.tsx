@@ -91,7 +91,6 @@ export default function App() {
     statusMessage,
     isConnected,
     themeName,
-    viewName,
     screenPlacement,
     showControls,
     showQueues,
@@ -429,7 +428,7 @@ export default function App() {
 
 
   const containerStyle = screenPlacement === 'halfTop' 
-    ? { ...styles.container, justifyContent: 'flex-start', height: '50vh', minHeight: '50vh', position: 'absolute' as const, top: 0, left: 0, right: 0 }
+    ? { ...styles.container, justifyContent: 'flex-start', height: '40vh', minHeight: '40vh', position: 'absolute' as const, top: 0, left: 0, right: 0 }
     : styles.container;
   
   const contentStyle = screenPlacement === 'halfTop'
@@ -662,15 +661,13 @@ export default function App() {
             />
 
             {/* Recent Artists - Right Side */}
-            {viewName !== 'dash' && (
-              <SpotifyIdsList
-                items={recentArtists}
-                title="Recent Artists"
-                sidebarStyle="right"
-                theme={theme}
-                styles={styles}
-              />
-            )}
+            <SpotifyIdsList
+              items={recentArtists}
+              title="Recent Artists"
+              sidebarStyle="right"
+              theme={theme}
+              styles={styles}
+            />
           </div>
         )}
       </div>

@@ -102,14 +102,12 @@ export interface JukeboxStateContextValue {
 
   // UI state
   themeName: string;
-  viewName: string;
   screenPlacement: 'fullscreen' | 'halfTop';
   showControls: boolean;
   showQueues: boolean;
   isKioskMode: boolean;
   hotkeys: HotkeyConfig | null;
   isThemeLoaded: boolean;
-  isViewLoaded: boolean;
   isHotkeysLoaded: boolean;
   isKioskModeLoaded: boolean;
   isConnectionStatusKnown: boolean;
@@ -183,7 +181,6 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
   };
   
   const [themeName, setThemeName] = useState<string>(() => getQueryParam('theme', 'steampunk'));
-  const [viewName, setViewName] = useState<string>(() => getQueryParam('view', 'default'));
   const [screenPlacement, setScreenPlacement] = useState<'fullscreen' | 'halfTop'>(() => {
     const placement = getQueryParam('placement', 'fullscreen');
     return placement === 'halfTop' ? 'halfTop' : 'fullscreen';
@@ -199,7 +196,6 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
   const [isKioskMode, setIsKioskMode] = useState<boolean>(false);
   const [hotkeys, setHotkeys] = useState<HotkeyConfig | null>(null);
   const [isThemeLoaded, setIsThemeLoaded] = useState<boolean>(false);
-  const [isViewLoaded, setIsViewLoaded] = useState<boolean>(false);
   const [isHotkeysLoaded, setIsHotkeysLoaded] = useState<boolean>(false);
   const [isKioskModeLoaded, setIsKioskModeLoaded] = useState<boolean>(false);
   const [isConnectionStatusKnown, setIsConnectionStatusKnown] = useState<boolean>(false);
@@ -415,20 +411,16 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     }
   }, [setIsConnected, setStatusMessage, setPlayerState]);
 
-  // Initialize theme and view from query parameters
+  // Initialize theme and display settings from query parameters
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const themeParam = urlParams.get('theme');
-    const viewParam = urlParams.get('view');
     const placementParam = urlParams.get('placement');
     const controlsParam = urlParams.get('controls');
     const queuesParam = urlParams.get('queues');
     
     if (themeParam) {
       setThemeName(themeParam);
-    }
-    if (viewParam) {
-      setViewName(viewParam);
     }
     if (placementParam) {
       setScreenPlacement(placementParam === 'halfTop' ? 'halfTop' : 'fullscreen');
@@ -441,7 +433,6 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     }
     
     setIsThemeLoaded(true);
-    setIsViewLoaded(true);
   }, []);
 
   // Listen for URL changes (e.g., browser back/forward)
@@ -449,16 +440,12 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     const handlePopState = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const themeParam = urlParams.get('theme');
-      const viewParam = urlParams.get('view');
       const placementParam = urlParams.get('placement');
       const controlsParam = urlParams.get('controls');
       const queuesParam = urlParams.get('queues');
       
       if (themeParam) {
         setThemeName(themeParam);
-      }
-      if (viewParam) {
-        setViewName(viewParam);
       }
       if (placementParam) {
         setScreenPlacement(placementParam === 'halfTop' ? 'halfTop' : 'fullscreen');
@@ -511,7 +498,7 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
 
         // If we have a previous version and it changed, refresh config items
         if (configVersionRef.current !== null && configVersionRef.current !== currentVersion) {
-          console.log('Configuration changed, refreshing theme, view, hotkeys, and kiosk mode...');
+          console.log('Configuration changed, refreshing theme, hotkeys, and kiosk mode...');
           // Refresh all config items
           await fetchHotkeys();
           await fetchKioskMode();
@@ -805,7 +792,7 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
   }, [playerState.currentTrack?.uri, fetchTrackArtistUri]);
 
   // Compute if all config is loaded
-  const isConfigLoaded = isThemeLoaded && isViewLoaded && isHotkeysLoaded && isKioskModeLoaded && isConnectionStatusKnown;
+  const isConfigLoaded = isThemeLoaded && isHotkeysLoaded && isKioskModeLoaded && isConnectionStatusKnown;
 
   const value: JukeboxStateContextValue = {
     playerState,
@@ -813,14 +800,12 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     statusMessage,
     isConnected,
     themeName,
-    viewName,
     screenPlacement,
     showControls,
     showQueues,
     isKioskMode,
     hotkeys,
     isThemeLoaded,
-    isViewLoaded,
     isHotkeysLoaded,
     isKioskModeLoaded,
     isConnectionStatusKnown,
