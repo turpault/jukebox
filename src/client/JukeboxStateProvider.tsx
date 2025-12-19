@@ -104,6 +104,8 @@ export interface JukeboxStateContextValue {
   themeName: string;
   viewName: string;
   screenPlacement: 'fullscreen' | 'halfTop';
+  showControls: boolean;
+  showQueues: boolean;
   isKioskMode: boolean;
   hotkeys: HotkeyConfig | null;
   isThemeLoaded: boolean;
@@ -185,6 +187,14 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
   const [screenPlacement, setScreenPlacement] = useState<'fullscreen' | 'halfTop'>(() => {
     const placement = getQueryParam('placement', 'fullscreen');
     return placement === 'halfTop' ? 'halfTop' : 'fullscreen';
+  });
+  const [showControls, setShowControls] = useState<boolean>(() => {
+    const controlsParam = getQueryParam('controls', '');
+    return controlsParam === 'true' || controlsParam === '1';
+  });
+  const [showQueues, setShowQueues] = useState<boolean>(() => {
+    const queuesParam = getQueryParam('queues', '');
+    return queuesParam === 'true' || queuesParam === '1';
   });
   const [isKioskMode, setIsKioskMode] = useState<boolean>(false);
   const [hotkeys, setHotkeys] = useState<HotkeyConfig | null>(null);
@@ -411,6 +421,8 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     const themeParam = urlParams.get('theme');
     const viewParam = urlParams.get('view');
     const placementParam = urlParams.get('placement');
+    const controlsParam = urlParams.get('controls');
+    const queuesParam = urlParams.get('queues');
     
     if (themeParam) {
       setThemeName(themeParam);
@@ -420,6 +432,12 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     }
     if (placementParam) {
       setScreenPlacement(placementParam === 'halfTop' ? 'halfTop' : 'fullscreen');
+    }
+    if (controlsParam !== null) {
+      setShowControls(controlsParam === 'true' || controlsParam === '1');
+    }
+    if (queuesParam !== null) {
+      setShowQueues(queuesParam === 'true' || queuesParam === '1');
     }
     
     setIsThemeLoaded(true);
@@ -433,6 +451,8 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
       const themeParam = urlParams.get('theme');
       const viewParam = urlParams.get('view');
       const placementParam = urlParams.get('placement');
+      const controlsParam = urlParams.get('controls');
+      const queuesParam = urlParams.get('queues');
       
       if (themeParam) {
         setThemeName(themeParam);
@@ -442,6 +462,12 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
       }
       if (placementParam) {
         setScreenPlacement(placementParam === 'halfTop' ? 'halfTop' : 'fullscreen');
+      }
+      if (controlsParam !== null) {
+        setShowControls(controlsParam === 'true' || controlsParam === '1');
+      }
+      if (queuesParam !== null) {
+        setShowQueues(queuesParam === 'true' || queuesParam === '1');
       }
     };
 
@@ -789,6 +815,8 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     themeName,
     viewName,
     screenPlacement,
+    showControls,
+    showQueues,
     isKioskMode,
     hotkeys,
     isThemeLoaded,

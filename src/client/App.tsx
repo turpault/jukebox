@@ -93,6 +93,8 @@ export default function App() {
     themeName,
     viewName,
     screenPlacement,
+    showControls,
+    showQueues,
     isKioskMode,
     hotkeys,
     isThemeLoaded,
@@ -507,8 +509,8 @@ export default function App() {
                   <span style={styles.timeLabel}>{formatTime(playerState.currentTrack?.duration || 0)}</span>
                 </div>
 
-                {/* Main playback controls - hidden in dash view */}
-                {viewName !== 'dash' && (
+                {/* Main playback controls - shown only if controls query param is true */}
+                {showControls && (
                 <div style={styles.controls}>
                   <button
                     style={{ ...styles.button, ...(playerState.shuffleContext ? styles.buttonActive : {}) }}
@@ -582,8 +584,8 @@ export default function App() {
                 </div>
               )}
 
-              {/* Volume control - hidden in dash view */}
-              {viewName !== 'dash' && (
+              {/* Volume control - shown only if controls query param is true */}
+              {showControls && (
                 <div style={styles.volumeContainer}>
                   <div style={styles.iconVolumeContainer}>
                     {isMuted ? (
@@ -641,8 +643,8 @@ export default function App() {
           />
         )}
 
-        {/* Spotify ID Lists - Side by side on desktop, stacked on mobile - hidden in dash and controls views */}
-        {viewName !== 'dash' && viewName !== 'controls' && (
+        {/* Spotify ID Lists - shown only if queues query param is true */}
+        {showQueues && (
           <div style={{
             display: 'flex',
             flexDirection: 'row',
