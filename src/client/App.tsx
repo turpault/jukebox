@@ -7,6 +7,16 @@ import { WaitingForPlayback } from './WaitingForPlayback';
 import type { HotkeyConfig } from '../types';
 import { Theme, themes, steampunkTheme } from './types';
 import { getCachedImageUrl } from './utils';
+import {
+  PlayIcon,
+  PauseIcon,
+  PreviousIcon,
+  NextIcon,
+  ShuffleIcon,
+  RepeatIcon,
+  RepeatOneIcon,
+  VolumeIcon,
+} from './Icons';
 
 // Client-side tracing utilities (matching server-side trace format)
 function generateTraceId(): string {
@@ -512,11 +522,7 @@ export default function App() {
                       }
                     }}
                   >
-                    <div style={styles.iconShuffle}>
-                      <div style={styles.iconShuffleArrow1}></div>
-                      <div style={styles.iconShuffleLine}></div>
-                      <div style={styles.iconShuffleArrow2}></div>
-                    </div>
+                    <ShuffleIcon color={theme.colors.text} size={20} />
                   </button>
                   <button
                     style={styles.button}
@@ -525,10 +531,7 @@ export default function App() {
                     onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.buttonHover)}
                     onMouseLeave={(e) => Object.assign(e.currentTarget.style, styles.button)}
                   >
-                    <div style={styles.iconPrevious}>
-                      <div style={styles.iconPreviousTriangle}></div>
-                      <div style={styles.iconPreviousTriangle}></div>
-                    </div>
+                    <PreviousIcon color={theme.colors.text} size={20} />
                   </button>
                   <button
                     style={styles.button}
@@ -538,12 +541,9 @@ export default function App() {
                     onMouseLeave={(e) => Object.assign(e.currentTarget.style, styles.button)}
                   >
                     {playerState.isPaused ? (
-                      <div style={styles.iconPlay}></div>
+                      <PlayIcon color={theme.colors.text} size={20} />
                     ) : (
-                      <div style={styles.iconPause}>
-                        <div style={styles.iconPauseBar}></div>
-                        <div style={styles.iconPauseBar}></div>
-                      </div>
+                      <PauseIcon color={theme.colors.text} size={20} />
                     )}
                   </button>
                   <button
@@ -553,10 +553,7 @@ export default function App() {
                     onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.buttonHover)}
                     onMouseLeave={(e) => Object.assign(e.currentTarget.style, styles.button)}
                   >
-                    <div style={styles.iconNext}>
-                      <div style={styles.iconNextTriangle}></div>
-                      <div style={styles.iconNextTriangle}></div>
-                    </div>
+                    <NextIcon color={theme.colors.text} size={20} />
                   </button>
                   <button
                     style={{ ...styles.button, ...(playerState.repeatTrack || playerState.repeatContext ? styles.buttonActive : {}) }}
@@ -574,13 +571,9 @@ export default function App() {
                     }}
                   >
                     {playerState.repeatTrack ? (
-                      <div style={styles.iconRepeatOne}>
-                        <div style={styles.iconRepeatOneText}>1</div>
-                      </div>
+                      <RepeatOneIcon color={theme.colors.text} size={20} />
                     ) : (
-                      <div style={styles.iconRepeat}>
-                        <div style={styles.iconRepeatArrow}></div>
-                      </div>
+                      <RepeatIcon color={theme.colors.text} size={20} />
                     )}
                   </button>
                 </div>
@@ -590,10 +583,7 @@ export default function App() {
               {viewName !== 'dash' && (
                 <div style={styles.volumeContainer}>
                   <div style={styles.iconVolumeContainer}>
-                    <div style={styles.iconVolume}>
-                      <div style={styles.iconVolumeBody}></div>
-                      <div style={styles.iconVolumeWaves}></div>
-                    </div>
+                    <VolumeIcon color={theme.colors.textSecondary} size={20} />
                   </div>
                   <input
                     type="range"
@@ -879,137 +869,6 @@ const createStyles = (theme: Theme): Record<string, React.CSSProperties> => ({
     justifyContent: 'center',
     flexShrink: 0,
   },
-  // Icon styles - simple shapes
-  iconPlay: {
-    width: 0,
-    height: 0,
-    borderLeft: `12px solid ${theme.colors.text}`,
-    borderTop: '8px solid transparent',
-    borderBottom: '8px solid transparent',
-    marginLeft: '4px',
-  },
-  iconPause: {
-    display: 'flex',
-    gap: '4px',
-    alignItems: 'center',
-  },
-  iconPauseBar: {
-    width: '4px',
-    height: '16px',
-    background: theme.colors.text,
-  },
-  iconPrevious: {
-    display: 'flex',
-    gap: '2px',
-    alignItems: 'center',
-  },
-  iconPreviousTriangle: {
-    width: 0,
-    height: 0,
-    borderRight: `8px solid ${theme.colors.text}`,
-    borderTop: '6px solid transparent',
-    borderBottom: '6px solid transparent',
-  },
-  iconNext: {
-    display: 'flex',
-    gap: '2px',
-    alignItems: 'center',
-  },
-  iconNextTriangle: {
-    width: 0,
-    height: 0,
-    borderLeft: `8px solid ${theme.colors.text}`,
-    borderTop: '6px solid transparent',
-    borderBottom: '6px solid transparent',
-  },
-  iconShuffle: {
-    position: 'relative',
-    width: '20px',
-    height: '16px',
-  },
-  iconShuffleArrow1: {
-    position: 'absolute',
-    left: 0,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    width: 0,
-    height: 0,
-    borderTop: `4px solid transparent`,
-    borderBottom: `4px solid transparent`,
-    borderLeft: `8px solid ${theme.colors.text}`,
-  },
-  iconShuffleArrow2: {
-    position: 'absolute',
-    right: 0,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    width: 0,
-    height: 0,
-    borderTop: `4px solid transparent`,
-    borderBottom: `4px solid transparent`,
-    borderRight: `8px solid ${theme.colors.text}`,
-  },
-  iconShuffleLine: {
-    position: 'absolute',
-    left: '50%',
-    top: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '2px',
-    height: '12px',
-    background: theme.colors.text,
-  },
-  iconRepeat: {
-    position: 'relative',
-    width: '18px',
-    height: '18px',
-    border: `2px solid ${theme.colors.text}`,
-    borderRadius: '50%',
-  },
-  iconRepeatArrow: {
-    position: 'absolute',
-    left: '50%',
-    top: '50%',
-    transform: 'translate(-50%, -50%) rotate(45deg)',
-    width: 0,
-    height: 0,
-    borderTop: `4px solid transparent`,
-    borderBottom: `4px solid transparent`,
-    borderRight: `6px solid ${theme.colors.text}`,
-    marginTop: '-2px',
-  },
-  iconRepeatOne: {
-    position: 'relative',
-    width: '18px',
-    height: '18px',
-    border: `2px solid ${theme.colors.text}`,
-    borderRadius: '50%',
-  },
-  iconRepeatOneText: {
-    position: 'absolute',
-    left: '50%',
-    top: '50%',
-    transform: 'translate(-50%, -50%)',
-    fontSize: '10px',
-    fontWeight: 'bold',
-    color: theme.colors.text,
-    lineHeight: 1,
-  },
-  iconVolume: {
-    position: 'relative',
-    width: '20px',
-    height: '16px',
-  },
-  iconVolumeBody: {
-    position: 'absolute',
-    left: 0,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    width: '10px',
-    height: '10px',
-    border: `2px solid ${theme.colors.textSecondary}`,
-    borderRight: 'none',
-    borderRadius: '2px 0 0 2px',
-  },
   spotifyIdsSidebarLeft: {
     position: 'fixed',
     left: 0,
@@ -1129,17 +988,6 @@ const createStyles = (theme: Theme): Record<string, React.CSSProperties> => ({
     boxShadow: theme.name === 'Matrix'
       ? `0 0 20px ${theme.colors.primary}`
       : `0 0 15px rgba(212, 175, 55, 0.6)`,
-  },
-  iconVolumeWaves: {
-    position: 'absolute',
-    right: 0,
-    top: '50%',
-    transform: 'translateY(-50%)',
-    width: 0,
-    height: 0,
-    borderTop: `3px solid transparent`,
-    borderBottom: `3px solid transparent`,
-    borderLeft: `6px solid ${theme.colors.textSecondary}`,
   },
   volumeSlider: {
     flex: 1,
