@@ -9,7 +9,6 @@ interface SpotifyIdsListProps {
   sidebarStyle: 'left' | 'right';
   theme: any;
   styles: any;
-  isMobile: boolean;
 }
 
 interface ItemMetadata {
@@ -20,7 +19,7 @@ interface ItemMetadata {
   loading: boolean;
 }
 
-export function SpotifyIdsList({ items, title, sidebarStyle, theme, styles, isMobile }: SpotifyIdsListProps) {
+export function SpotifyIdsList({ items, title, sidebarStyle, theme, styles }: SpotifyIdsListProps) {
   const { addToQueue, loadingSpotifyId } = useJukeboxState();
   const [metadataCache, setMetadataCache] = useState<Map<string, ItemMetadata>>(new Map());
 

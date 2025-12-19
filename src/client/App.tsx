@@ -106,20 +106,8 @@ export default function App() {
 
   // Local UI state
   const [theme, setTheme] = useState<Theme>(steampunkTheme);
-  const [isMobile, setIsMobile] = useState(false);
   const gamepadPollIntervalRef = useRef<number | null>(null);
   const lastGamepadStateRef = useRef<boolean[]>([]);
-
-  // Detect mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // UI-specific API call helper (for functions that need to update statusMessage)
   const apiCall = useCallback(async (endpoint: string, method: string = 'GET', body?: any) => {
@@ -379,18 +367,8 @@ export default function App() {
     return minutes + ':' + padStart(String(seconds), 2, '0');
   };
 
-  // Detect mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  const styles = useMemo(() => createStyles(theme, isMobile), [theme, isMobile]);
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   // Add spinner animation if not already in document
   useEffect(() => {
@@ -455,7 +433,6 @@ export default function App() {
                     volume={playerState.volume}
                     volumeMax={playerState.volumeMax}
                     theme={theme}
-                    isMobile={isMobile}
                   >
                     {playerState.currentTrack?.album_cover_url && (
                       <img
@@ -651,7 +628,6 @@ export default function App() {
             isConnectionStatusKnown={isConnectionStatusKnown}
             statusMessage={statusMessage}
             theme={theme}
-            isMobile={isMobile}
           />
         )}
 
@@ -659,10 +635,10 @@ export default function App() {
         {viewName !== 'dash' && viewName !== 'controls' && (
           <div style={{
             display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
+            flexDirection: 'row',
             width: '100%',
-            gap: isMobile ? '0' : '0',
-            marginTop: isMobile ? '20px' : '0',
+            gap: '0',
+            marginTop: '0',
           }}>
             {/* Configured IDs - Left Side */}
             <SpotifyIdsList
@@ -671,7 +647,6 @@ export default function App() {
               sidebarStyle="left"
               theme={theme}
               styles={styles}
-              isMobile={isMobile}
             />
 
             {/* Recent Artists - Right Side */}
@@ -682,7 +657,6 @@ export default function App() {
                 sidebarStyle="right"
                 theme={theme}
                 styles={styles}
-                isMobile={isMobile}
               />
             )}
           </div>
@@ -693,7 +667,7 @@ export default function App() {
 }
 
 // Create styles function that uses theme and mobile detection
-const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSSProperties> => ({
+const createStyles = (theme: Theme): Record<string, React.CSSProperties> => ({
   container: {
     display: 'flex',
     flexDirection: 'column',
@@ -709,10 +683,10 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     // Safe area padding - iOS 9 doesn't support env(), but also doesn't have notches
     // So we can safely use 0 for iOS 9 devices
     // For iOS 11+, the CSS @supports rule in index.html will add the env() padding
-    paddingTop: isMobile ? '0' : '0',
-    paddingBottom: isMobile ? '0' : '0',
-    paddingLeft: isMobile ? '0' : '0',
-    paddingRight: isMobile ? '0' : '0',
+    paddingTop: '0',
+    paddingBottom: '0',
+    paddingLeft: '0',
+    paddingRight: '0',
     width: '100%',
   },
   loadingContent: {
@@ -724,7 +698,7 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     paddingTop: '20px',
   },
   title: {
-    fontSize: isMobile ? '2.5rem' : '4rem',
+    fontSize: '4rem',
     margin: 0,
     fontWeight: 'bold',
     fontFamily: theme.fonts.title,
@@ -761,11 +735,11 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   },
   content: {
     textAlign: 'center',
-    maxWidth: isMobile ? '100%' : '800px',
+    maxWidth: '800px',
     width: '100%',
-    padding: isMobile ? '15px' : '20px',
-    marginLeft: isMobile ? '0' : '180px',
-    marginRight: isMobile ? '0' : '180px',
+    padding: '20px',
+    marginLeft: '180px',
+    marginRight: '180px',
     background: theme.colors.surface,
     borderRadius: theme.effects.borderRadius,
     border: `2px solid ${theme.colors.border}`,
@@ -787,13 +761,13 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   },
   albumArtContainer: {
     position: 'absolute',
-    top: isMobile ? '20px' : '30px',
-    left: isMobile ? '20px' : '30px',
+    top: '30px',
+    left: '30px',
     zIndex: 1,
   },
   albumArt: {
-    width: isMobile ? '250px' : '300px',
-    height: isMobile ? '250px' : '300px',
+    width: '300px',
+    height: '300px',
     maxWidth: '100%',
     borderRadius: theme.effects.borderRadius,
     boxShadow: theme.effects.shadow,
@@ -802,19 +776,19 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   },
   trackInfo: {
     position: 'absolute',
-    top: isMobile ? '20px' : '30px',
-    left: isMobile ? '290px' : '360px',
-    right: isMobile ? '20px' : '30px',
+    top: '30px',
+    left: '360px',
+    right: '30px',
     textAlign: 'left',
     zIndex: 1,
   },
   controls: {
     position: 'absolute',
-    bottom: isMobile ? '50px' : '60px',
-    left: isMobile ? '20px' : '30px',
-    right: isMobile ? '20px' : '30px',
+    bottom: '60px',
+    left: '30px',
+    right: '30px',
     display: 'flex',
-    gap: isMobile ? '15px' : '20px',
+    gap: '20px',
     alignItems: 'center',
     flexWrap: 'nowrap',
     justifyContent: 'center',
@@ -824,14 +798,14 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     background: `linear-gradient(135deg, ${theme.colors.surface} 0%, ${theme.colors.border} 100%)`,
     border: `2px solid ${theme.colors.border}`,
     color: theme.colors.text,
-    fontSize: isMobile ? '1.5rem' : '2rem',
+    fontSize: '2rem',
     cursor: 'pointer',
-    padding: isMobile ? '15px' : '12px',
+    padding: '12px',
     borderRadius: '50%',
     transition: 'all 0.3s ease',
     boxShadow: `0 4px 15px rgba(0, 0, 0, 0.5)`,
-    minWidth: isMobile ? '56px' : '60px',
-    minHeight: isMobile ? '56px' : '60px',
+    minWidth: '60px',
+    minHeight: '60px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -855,20 +829,20 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   progressContainer: {
     position: 'absolute',
     // Align bottom with artwork bottom
-    // Artwork bottom: top (20/30) + height (250/300) = 270/330 from top
+    // Artwork bottom: top (30) + height (300) = 330 from top
     // Position so container bottom aligns - estimate container height ~25px
-    top: isMobile ? '245px' : '305px',
-    left: isMobile ? '290px' : '360px',
-    right: isMobile ? '20px' : '30px',
+    top: '305px',
+    left: '360px',
+    right: '30px',
     display: 'flex',
     alignItems: 'flex-end',
-    gap: isMobile ? '8px' : '10px',
-    padding: isMobile ? '0 10px' : '0',
+    gap: '10px',
+    padding: '0',
     zIndex: 1,
   },
   progressBar: {
     flex: 1,
-    height: isMobile ? '10px' : '8px',
+    height: '8px',
     borderRadius: '4px',
     background: theme.colors.progressTrack,
     outline: 'none',
@@ -878,9 +852,9 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     WebkitTapHighlightColor: 'transparent',
   },
   timeLabel: {
-    fontSize: isMobile ? '0.8em' : '0.9em',
+    fontSize: '0.9em',
     color: theme.colors.textSecondary,
-    width: isMobile ? '40px' : '45px',
+    width: '45px',
     textAlign: 'center',
     fontFamily: theme.fonts.primary,
     fontVariantNumeric: 'tabular-nums',
@@ -888,18 +862,18 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   },
   volumeContainer: {
     position: 'absolute',
-    // Position above progress bar - progress bar top is 245px/305px, place volume ~30px above
-    top: isMobile ? '215px' : '275px',
-    left: isMobile ? '290px' : '360px',
-    right: isMobile ? '20px' : '30px',
+    // Position above progress bar - progress bar top is 305px, place volume ~30px above
+    top: '275px',
+    left: '360px',
+    right: '30px',
     display: 'flex',
     alignItems: 'center',
-    gap: isMobile ? '8px' : '10px',
-    padding: isMobile ? '0 10px' : '0',
+    gap: '10px',
+    padding: '0',
     zIndex: 1,
   },
   iconVolumeContainer: {
-    width: isMobile ? '40px' : '45px',
+    width: '45px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1037,38 +1011,38 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     borderRadius: '2px 0 0 2px',
   },
   spotifyIdsSidebarLeft: {
-    position: isMobile ? 'relative' : 'fixed',
+    position: 'fixed',
     left: 0,
     top: 0,
-    bottom: isMobile ? 'auto' : 0,
-    width: isMobile ? '100%' : '160px',
-    maxHeight: isMobile ? '200px' : 'none',
-    padding: isMobile ? '10px' : '15px 10px',
+    bottom: 0,
+    width: '160px',
+    maxHeight: 'none',
+    padding: '15px 10px',
     background: theme.colors.surface,
-    borderRight: isMobile ? 'none' : `2px solid ${theme.colors.border}`,
-    borderBottom: isMobile ? `2px solid ${theme.colors.border}` : 'none',
-    boxShadow: isMobile ? 'none' : `4px 0 20px rgba(0, 0, 0, 0.5)`,
+    borderRight: `2px solid ${theme.colors.border}`,
+    borderBottom: 'none',
+    boxShadow: `4px 0 20px rgba(0, 0, 0, 0.5)`,
     zIndex: 100,
     display: 'flex',
     flexDirection: 'column',
-    marginBottom: isMobile ? '10px' : '0',
+    marginBottom: '0',
   },
   spotifyIdsSidebarRight: {
-    position: isMobile ? 'relative' : 'fixed',
+    position: 'fixed',
     right: 0,
     top: 0,
-    bottom: isMobile ? 'auto' : 0,
-    width: isMobile ? '100%' : '160px',
-    maxHeight: isMobile ? '200px' : 'none',
-    padding: isMobile ? '10px' : '15px 10px',
+    bottom: 0,
+    width: '160px',
+    maxHeight: 'none',
+    padding: '15px 10px',
     background: theme.colors.surface,
-    borderLeft: isMobile ? 'none' : `2px solid ${theme.colors.border}`,
-    borderTop: isMobile ? `2px solid ${theme.colors.border}` : 'none',
-    boxShadow: isMobile ? 'none' : `-4px 0 20px rgba(0, 0, 0, 0.5)`,
+    borderLeft: `2px solid ${theme.colors.border}`,
+    borderTop: 'none',
+    boxShadow: `-4px 0 20px rgba(0, 0, 0, 0.5)`,
     zIndex: 100,
     display: 'flex',
     flexDirection: 'column',
-    marginTop: isMobile ? '10px' : '0',
+    marginTop: '0',
   },
   spotifyIdsSidebarTitle: {
     color: theme.colors.primary,
@@ -1082,10 +1056,10 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   },
   spotifyIdsSidebarScroll: {
     display: 'flex',
-    flexDirection: isMobile ? 'row' : 'column',
-    gap: isMobile ? '10px' : '15px',
-    overflowY: isMobile ? 'hidden' : 'auto',
-    overflowX: isMobile ? 'auto' : 'hidden',
+    flexDirection: 'column',
+    gap: '15px',
+    overflowY: 'auto',
+    overflowX: 'hidden',
     scrollbarWidth: 'thin',
     scrollbarColor: `${theme.colors.border} ${theme.colors.surface}`,
     flex: 1,
@@ -1169,7 +1143,7 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
   },
   volumeSlider: {
     flex: 1,
-    height: isMobile ? '8px' : '6px',
+    height: '6px',
     borderRadius: '3px',
     background: theme.colors.progressTrack,
     outline: 'none',
@@ -1179,9 +1153,9 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     WebkitTapHighlightColor: 'transparent',
   },
   volumeLabel: {
-    fontSize: isMobile ? '0.8em' : '0.9em',
+    fontSize: '0.9em',
     color: theme.colors.textSecondary,
-    width: isMobile ? '40px' : '45px',
+    width: '45px',
     textAlign: 'center',
     fontFamily: theme.fonts.primary,
     fontVariantNumeric: 'tabular-nums',

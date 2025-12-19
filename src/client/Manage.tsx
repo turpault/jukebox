@@ -669,6 +669,7 @@ export default function Manage() {
               >
                 <option value="default">Default (Controls & Queue)</option>
                 <option value="dash">Dash (Track Only)</option>
+                <option value="controls">Controls Only</option>
               </select>
             </div>
             <div>

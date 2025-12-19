@@ -5,7 +5,6 @@ interface VolumeIndicatorProps {
   volume: number;
   volumeMax: number;
   theme: Theme;
-  isMobile: boolean;
   children?: React.ReactNode;
 }
 
@@ -13,7 +12,6 @@ export const VolumeIndicator: React.FC<VolumeIndicatorProps> = ({
   volume,
   volumeMax,
   theme,
-  isMobile,
   children,
 }) => {
   const [showIndicator, setShowIndicator] = useState(false);
@@ -56,8 +54,8 @@ export const VolumeIndicator: React.FC<VolumeIndicatorProps> = ({
 
   const styles = {
     volumeIndicator: {
-      width: isMobile ? '250px' : '300px',
-      height: isMobile ? '250px' : '300px',
+      width: '300px',
+      height: '300px',
       maxWidth: '100%',
       borderRadius: theme.effects.borderRadius,
       boxShadow: theme.effects.shadow,
@@ -129,7 +127,7 @@ export const VolumeIndicator: React.FC<VolumeIndicatorProps> = ({
       border: `1px solid ${theme.colors.primary}`,
     },
     volumeIndicatorLabel: {
-      fontSize: isMobile ? '2rem' : '2.5rem',
+      fontSize: '2.5rem',
       fontFamily: theme.fonts.title,
       color: theme.colors.primary,
       fontWeight: 'bold' as const,

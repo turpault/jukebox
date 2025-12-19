@@ -9,7 +9,6 @@ interface WaitingForPlaybackProps {
   isConnectionStatusKnown: boolean;
   statusMessage: string;
   theme: Theme;
-  isMobile: boolean;
 }
 
 export const WaitingForPlayback: React.FC<WaitingForPlaybackProps> = ({
@@ -20,67 +19,18 @@ export const WaitingForPlayback: React.FC<WaitingForPlaybackProps> = ({
   isConnectionStatusKnown,
   statusMessage,
   theme,
-  isMobile,
 }) => {
-  // WebSocket connection error state
+  // Display a status message if when not connected
   if (!isConnected && isConnectionStatusKnown) {
-    const errorContent = (
-      <div style={{
-        background: theme.colors.surface,
-        borderRadius: theme.effects.borderRadius,
-        border: `2px solid ${theme.colors.border}`,
-        padding: isMobile ? '20px' : '30px',
-        boxShadow: theme.effects.shadow,
-        width: '100%',
-        boxSizing: 'border-box',
-        maxWidth: screenPlacement === 'halfTop' ? '100%' : (isMobile ? '95%' : '800px'),
-      }}>
-        <h2 style={{
-          color: theme.colors.text,
-          fontFamily: theme.fonts.title,
-          fontSize: isMobile ? '1.5rem' : '2rem',
-          marginTop: 0,
-          marginBottom: '20px',
-          textAlign: 'center',
-        }}>
-          Connection Error
-        </h2>
-        <p style={{
-          color: theme.colors.textSecondary,
-          fontSize: isMobile ? '0.9rem' : '1.1rem',
-          lineHeight: '1.6',
-          marginBottom: '20px',
-          textAlign: 'center',
-        }}>
-          {statusMessage || 'Unable to connect to the jukebox server. Please check your connection.'}
+    return (
+      <div style={{ ...placeholderStyle, textAlign: 'center' }}>
+        <p style={{ color: theme.colors.textSecondary, fontSize: '1.1rem', lineHeight: '1.6', marginBottom: '30px' }}>
+        Unable to connect to the jukebox server. Please check your connection.
         </p>
       </div>
     );
-
-    if (screenPlacement === 'halfTop') {
-      return (
-        <div style={{ ...containerStyle, height: '100%' }}>
-          <div style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '50px',
-          }}>
-            {errorContent}
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div style={placeholderStyle}>
-        {errorContent}
-      </div>
-    );
   }
+
 
   // No Spotify client connected - show connection instructions
   const connectionInstructions = (
@@ -88,16 +38,16 @@ export const WaitingForPlayback: React.FC<WaitingForPlaybackProps> = ({
       background: theme.colors.surface,
       borderRadius: theme.effects.borderRadius,
       border: `2px solid ${theme.colors.border}`,
-      padding: isMobile ? '20px' : '30px',
+      padding: '30px',
       boxShadow: theme.effects.shadow,
       width: '100%',
       boxSizing: 'border-box',
-      maxWidth: screenPlacement === 'halfTop' ? '100%' : (isMobile ? '95%' : '800px'),
-    }}>
+      maxWidth: '800px',
+    }}>            
       <h2 style={{
         color: theme.colors.text,
         fontFamily: theme.fonts.title,
-        fontSize: isMobile ? '1.5rem' : '2rem',
+        fontSize: '2rem',
         marginTop: 0,
         marginBottom: '20px',
         textAlign: 'center',
@@ -106,9 +56,8 @@ export const WaitingForPlayback: React.FC<WaitingForPlaybackProps> = ({
       </h2>
       <p style={{
         color: theme.colors.textSecondary,
-        fontSize: isMobile ? '0.9rem' : '1.1rem',
+        fontSize: '1.1rem',
         lineHeight: '1.6',
-        marginBottom: '30px',
         textAlign: 'center',
       }}>
         To use this jukebox, you need to connect a Spotify Connect device from the Spotify app.
@@ -120,7 +69,7 @@ export const WaitingForPlayback: React.FC<WaitingForPlaybackProps> = ({
         <h3 style={{
           color: theme.colors.primary,
           fontFamily: theme.fonts.title,
-          fontSize: isMobile ? '1.1rem' : '1.3rem',
+          fontSize: '1.3rem',
           marginBottom: '8px',
           marginTop: 0,
           borderBottom: `2px solid ${theme.colors.border}`,
@@ -131,24 +80,24 @@ export const WaitingForPlayback: React.FC<WaitingForPlaybackProps> = ({
 
         <ol style={{
           color: theme.colors.text,
-          fontSize: isMobile ? '0.85rem' : '0.9rem',
-          lineHeight: '1.4',
+          fontSize: '0.9rem',
+          lineHeight: '1.2',
           paddingLeft: '20px',
           margin: 0,
         }}>
-          <li style={{ marginBottom: '6px' }}>
+          <li style={{ marginBottom: '3px', lineHeight: '1.2' }}>
             <strong>Open the Spotify app</strong> on your phone, tablet, or computer
           </li>
-          <li style={{ marginBottom: '6px' }}>
+          <li style={{ marginBottom: '3px', lineHeight: '1.2' }}>
             <strong>Start playing any song</strong> or open a playlist/album
           </li>
-          <li style={{ marginBottom: '6px' }}>
+          <li style={{ marginBottom: '3px', lineHeight: '1.2' }}>
             <strong>Tap the "Devices Available" button</strong> (looks like a speaker or computer icon) at the bottom of the Now Playing screen
           </li>
-          <li style={{ marginBottom: '6px' }}>
+          <li style={{ marginBottom: '3px', lineHeight: '1.2' }}>
             <strong>Select "Jukebox"</strong> from the list of available devices
           </li>
-          <li style={{ marginBottom: '0' }}>
+          <li style={{ marginBottom: '0', lineHeight: '1.2' }}>
             <strong>Your music will start playing</strong> through the jukebox, and you'll see it appear here!
           </li>
         </ol>
@@ -166,8 +115,7 @@ export const WaitingForPlayback: React.FC<WaitingForPlaybackProps> = ({
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'flex-start',
-          margin: '50px',
-          paddingTop: '20px',
+          paddingTop: '0',
         }}>
           {connectionInstructions}
         </div>
