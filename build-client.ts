@@ -19,7 +19,7 @@ async function buildClient() {
   // Step 1: Bundle with Bun
   console.log("Step 1: Bundling with Bun...");
   await build({
-    entrypoints: ["./src/index.tsx"],
+    entrypoints: ["./src/client/index.tsx"],
     outdir: "./public/dist",
     target: "browser",
     minify: false, // Don't minify for easier debugging on iOS 9

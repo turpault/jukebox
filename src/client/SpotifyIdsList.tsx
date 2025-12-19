@@ -1,14 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useJukeboxState } from './JukeboxStateProvider';
 import { SpotifyIdWithArtwork } from './ConfigStateProvider';
-
-// Helper function to convert image URL to cached endpoint
-function getCachedImageUrl(imageUrl: string): string {
-  if (!imageUrl) return '';
-  if (imageUrl.startsWith('/api/image/')) return imageUrl;
-  const base64Url = btoa(unescape(encodeURIComponent(imageUrl)));
-  return `/api/image/${base64Url}`;
-}
+import { getCachedImageUrl } from './utils';
 
 interface SpotifyIdsListProps {
   items: string[]; // Just IDs, not full metadata

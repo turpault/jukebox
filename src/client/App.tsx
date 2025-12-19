@@ -3,131 +3,9 @@ import { useJukeboxState } from './JukeboxStateProvider';
 import { useConfigState } from './ConfigStateProvider';
 import { SpotifyIdsList } from './SpotifyIdsList';
 import { VolumeIndicator } from './VolumeIndicator';
-
-interface TrackMetadata {
-  context_uri?: string;
-  uri?: string;
-  name?: string;
-  artist_names?: string[];
-  album_name?: string;
-  album_cover_url?: string;
-  position?: number;
-  duration?: number;
-}
-
-interface PlayerState {
-  isPaused: boolean;
-  isActive: boolean;
-  currentTrack: TrackMetadata | null;
-  position: number;
-  volume: number;
-  volumeMax: number;
-  repeatContext: boolean;
-  repeatTrack: boolean;
-  shuffleContext: boolean;
-}
-
-interface SpotifyIdWithArtwork {
-  id: string;
-  name: string;
-  type: string;
-  imageUrl: string;
-}
-
-// All API calls are proxied through the server (local API)
-
-// Helper function to convert image URL to cached endpoint
-function getCachedImageUrl(imageUrl: string): string {
-  if (!imageUrl) return '';
-  // If already using the cached endpoint, return as-is
-  if (imageUrl.startsWith('/api/image/')) return imageUrl;
-  // Base64 encode the URL and use the cached endpoint
-  // Use btoa for browser compatibility
-  const base64Url = btoa(unescape(encodeURIComponent(imageUrl)));
-  return `/api/image/${base64Url}`;
-}
-
-// Theme system
-interface Theme {
-  name: string;
-  colors: {
-    primary: string;
-    secondary: string;
-    accent: string;
-    background: string;
-    surface: string;
-    text: string;
-    textSecondary: string;
-    border: string;
-    active: string;
-    progress: string;
-    progressTrack: string;
-  };
-  fonts: {
-    primary: string;
-    title: string;
-  };
-  effects: {
-    shadow: string;
-    borderRadius: string;
-  };
-}
-
-const steampunkTheme: Theme = {
-  name: 'Steampunk 1930s',
-  colors: {
-    primary: '#D4AF37',      // Brass/Gold
-    secondary: '#B8860B',    // Darker gold
-    accent: '#CD853F',       // Peru/bronze
-    background: 'linear-gradient(135deg, #2C1810 0%, #1A0F08 50%, #0D0603 100%)', // Dark wood gradient
-    surface: 'rgba(61, 40, 23, 0.8)', // Dark brown with transparency
-    text: '#F4E4BC',         // Warm cream
-    textSecondary: '#D4AF37', // Brass
-    border: '#8B6914',       // Aged brass
-    active: '#D4AF37',       // Brass for active states
-    progress: '#D4AF37',     // Brass progress
-    progressTrack: '#3D2817', // Dark brown track
-  },
-  fonts: {
-    primary: '"Cinzel", "Playfair Display", "Times New Roman", serif',
-    title: '"Cinzel", "Playfair Display", "Times New Roman", serif',
-  },
-  effects: {
-    shadow: '0 8px 32px rgba(0, 0, 0, 0.8), 0 0 20px rgba(212, 175, 55, 0.3)',
-    borderRadius: '8px',
-  },
-};
-
-const matrixTheme: Theme = {
-  name: 'Matrix',
-  colors: {
-    primary: '#00FF41',      // Matrix green
-    secondary: '#00CC33',    // Darker green
-    accent: '#00FF88',       // Bright green
-    background: '#000000',   // Pure black
-    surface: 'rgba(0, 0, 0, 0.9)', // Black with slight transparency
-    text: '#00FF41',         // Matrix green
-    textSecondary: '#00CC33', // Darker green
-    border: '#003311',       // Dark green border
-    active: '#00FF41',       // Matrix green for active states
-    progress: '#00FF41',     // Matrix green progress
-    progressTrack: '#001100', // Very dark green track
-  },
-  fonts: {
-    primary: '"Courier New", "Monaco", "Consolas", monospace',
-    title: '"Courier New", "Monaco", "Consolas", monospace',
-  },
-  effects: {
-    shadow: '0 0 20px rgba(0, 255, 65, 0.5), 0 0 40px rgba(0, 255, 65, 0.3)',
-    borderRadius: '0px',
-  },
-};
-
-// Theme registry
-const themes: Record<string, Theme> = {
-  steampunk: steampunkTheme,
-  matrix: matrixTheme,
-};
+import type { HotkeyConfig } from '../types';
+import { Theme, themes, steampunkTheme } from './types';
+import { getCachedImageUrl } from './utils';
 
 // Client-side tracing utilities (matching server-side trace format)
 function generateTraceId(): string {
@@ -192,30 +70,6 @@ const logREST = (method: string, endpoint: string, data?: any, response?: any, e
   }
 };
 
-interface HotkeyConfig {
-  keyboard: {
-    playPause?: string;
-    next?: string;
-    previous?: string;
-    volumeUp?: string;
-    volumeDown?: string;
-    seekForward?: string;
-    seekBackward?: string;
-    shuffle?: string;
-    repeat?: string;
-  };
-  gamepad: {
-    playPause?: number;
-    next?: number;
-    previous?: number;
-    volumeUp?: number;
-    volumeDown?: number;
-    shuffle?: number;
-    repeat?: number;
-  };
-  volumeStep?: number;
-  seekStep?: number;
-}
 
 export default function App() {
   // Get state from provider

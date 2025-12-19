@@ -1,11 +1,8 @@
 import React, { createContext, useContext, useState, useRef, useCallback, useEffect } from 'react';
+import type { SpotifyIdWithArtwork } from '../types';
 
-export interface SpotifyIdWithArtwork {
-  id: string;
-  name: string;
-  type: string;
-  imageUrl: string;
-}
+// Re-export for convenience
+export type { SpotifyIdWithArtwork };
 
 // Logging utilities
 function generateTraceId(): string {

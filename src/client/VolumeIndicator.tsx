@@ -1,22 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-
-interface Theme {
-  name: string;
-  colors: {
-    primary: string;
-    secondary: string;
-    border: string;
-    progressTrack: string;
-    surface: string;
-  };
-  fonts: {
-    title: string;
-  };
-  effects: {
-    shadow: string;
-    borderRadius: string;
-  };
-}
+import type { Theme } from './types';
 
 interface VolumeIndicatorProps {
   volume: number;
