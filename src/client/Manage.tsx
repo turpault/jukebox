@@ -168,6 +168,31 @@ export default function Manage() {
     }
   }, []);
 
+  const clearApiStats = useCallback(async () => {
+    if (!confirm('Are you sure you want to clear all API statistics? This action cannot be undone.')) {
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE}/api/stats`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data && !data.error) {
+        setMessage('API statistics cleared successfully');
+        setApiStats(null);
+        // Refresh stats after clearing
+        setTimeout(() => {
+          fetchApiStats();
+        }, 500);
+      } else {
+        setMessage(data.error || 'Failed to clear API statistics');
+      }
+    } catch (error) {
+      console.error('Failed to clear API stats:', error);
+      setMessage('Failed to clear API statistics');
+    }
+  }, [fetchApiStats]);
+
   const saveRecentArtistsLimit = async (limit: number) => {
     try {
       const response = await fetch(`${API_BASE}/api/spotify/recent-artists-limit`, {
@@ -786,7 +811,25 @@ export default function Manage() {
 
         {/* API Statistics */}
         <div style={{ ...styles.card, marginBottom: '40px' }}>
-          <h2 style={styles.cardTitle}>API Statistics</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h2 style={styles.cardTitle}>API Statistics</h2>
+            {apiStats && (
+              <button
+                onClick={clearApiStats}
+                style={{
+                  ...styles.button,
+                  background: `linear-gradient(135deg, #FF4444 0%, #CC0000 100%)`,
+                  border: `2px solid #FF4444`,
+                  color: '#FFFFFF',
+                  fontSize: '0.9rem',
+                  padding: '8px 16px',
+                }}
+                title="Clear all API statistics"
+              >
+                Clear
+              </button>
+            )}
+          </div>
           {apiStats ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Overview Stats */}

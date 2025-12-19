@@ -217,6 +217,17 @@ export function getApiStats(): ApiStats {
   }
 }
 
+// Clear all API logs
+export function clearApiLogs(): void {
+  try {
+    const database = initDatabase();
+    database.exec('DELETE FROM api_logs');
+  } catch (error) {
+    console.error('Failed to clear API logs:', error);
+    throw error;
+  }
+}
+
 // Clean up old logs (older than 30 days)
 export function cleanupOldLogs(): void {
   try {

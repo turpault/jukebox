@@ -13,6 +13,7 @@ import {
   handleGetView,
   handlePostView,
   handleGetStats,
+  handleDeleteStats,
 } from "./src/management";
 import {
   startImageCacheCleanup,
@@ -101,6 +102,7 @@ serve({
     },
     "/api/stats": {
       GET: wrapHandler(handleGetStats),
+      DELETE: wrapHandler(handleDeleteStats),
     },
     // Librespot routes
     "/api/events": {

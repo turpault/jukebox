@@ -1,6 +1,6 @@
 import { getConfig, setConfig, getConfigVersion, Config } from "./config";
 import { traceApiStart, traceApiEnd } from "./tracing";
-import { getApiStats } from "./api-logger";
+import { getApiStats, clearApiLogs } from "./api-logger";
 
 export async function getTheme(): Promise<string> {
   try {
@@ -232,6 +232,19 @@ export async function handleGetStats() {
   } catch (error) {
     traceApiEnd(traceContext, 500, null, error);
     return Response.json({ error: "Failed to get API stats" }, { status: 500 });
+  }
+}
+
+// Clear API stats handler
+export async function handleDeleteStats() {
+  const traceContext = traceApiStart('DELETE', '/api/stats', 'inbound');
+  try {
+    clearApiLogs();
+    traceApiEnd(traceContext, 200, { statsCleared: true });
+    return Response.json({ success: true, message: "API statistics cleared" });
+  } catch (error) {
+    traceApiEnd(traceContext, 500, null, error);
+    return Response.json({ error: "Failed to clear API stats" }, { status: 500 });
   }
 }
 
