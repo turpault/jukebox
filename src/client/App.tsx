@@ -450,20 +450,22 @@ export default function App() {
           <>
             {/* Default/Dash View Layout */}
               <div style={styles.player}>
-                <VolumeIndicator
-                  volume={playerState.volume}
-                  volumeMax={playerState.volumeMax}
-                  theme={theme}
-                  isMobile={isMobile}
-                >
-                  {playerState.currentTrack?.album_cover_url && (
-                    <img
-                      src={getCachedImageUrl(playerState.currentTrack.album_cover_url)}
-                      alt={playerState.currentTrack.name || 'Album cover'}
-                      style={styles.albumArt}
-                    />
-                  )}
-                </VolumeIndicator>
+                <div style={styles.albumArtContainer}>
+                  <VolumeIndicator
+                    volume={playerState.volume}
+                    volumeMax={playerState.volumeMax}
+                    theme={theme}
+                    isMobile={isMobile}
+                  >
+                    {playerState.currentTrack?.album_cover_url && (
+                      <img
+                        src={getCachedImageUrl(playerState.currentTrack.album_cover_url)}
+                        alt={playerState.currentTrack.name || 'Album cover'}
+                        style={styles.albumArt}
+                      />
+                    )}
+                  </VolumeIndicator>
+                </div>
                 <div style={styles.trackInfo}>
                   <h2 style={{
                     color: theme.colors.text,
@@ -773,10 +775,17 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     fontFamily: theme.fonts.primary,
   },
   player: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '20px',
+    position: 'relative',
+    width: '100%',
+    minHeight: isMobile ? '600px' : '700px',
+    display: 'block',
+  },
+  albumArtContainer: {
+    position: 'absolute',
+    top: isMobile ? '20px' : '30px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    zIndex: 1,
   },
   albumArt: {
     width: isMobile ? '250px' : '300px',
@@ -785,16 +794,29 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     borderRadius: theme.effects.borderRadius,
     boxShadow: theme.effects.shadow,
     border: `3px solid ${theme.colors.border}`,
+    display: 'block',
   },
   trackInfo: {
-    marginBottom: '20px',
+    position: 'absolute',
+    top: isMobile ? '290px' : '350px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '100%',
+    maxWidth: isMobile ? '95%' : '600px',
+    textAlign: 'center',
+    zIndex: 1,
   },
   controls: {
+    position: 'absolute',
+    top: isMobile ? '450px' : '520px',
+    left: '50%',
+    transform: 'translateX(-50%)',
     display: 'flex',
     gap: isMobile ? '15px' : '20px',
     alignItems: 'center',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     justifyContent: 'center',
+    zIndex: 1,
   },
   button: {
     background: `linear-gradient(135deg, ${theme.colors.surface} 0%, ${theme.colors.border} 100%)`,
@@ -829,12 +851,17 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     border: `2px solid ${theme.colors.primary}`,
   },
   progressContainer: {
+    position: 'absolute',
+    top: isMobile ? '400px' : '470px',
+    left: '50%',
+    transform: 'translateX(-50%)',
     display: 'flex',
     alignItems: 'center',
     gap: isMobile ? '8px' : '10px',
     width: '100%',
-    maxWidth: isMobile ? '100%' : '500px',
+    maxWidth: isMobile ? '95%' : '500px',
     padding: isMobile ? '0 10px' : '0',
+    zIndex: 1,
   },
   progressBar: {
     flex: 1,
@@ -856,12 +883,17 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     fontVariantNumeric: 'tabular-nums',
   },
   volumeContainer: {
+    position: 'absolute',
+    top: isMobile ? '550px' : '620px',
+    left: '50%',
+    transform: 'translateX(-50%)',
     display: 'flex',
     alignItems: 'center',
     gap: isMobile ? '8px' : '10px',
     width: '100%',
-    maxWidth: isMobile ? '100%' : '300px',
+    maxWidth: isMobile ? '95%' : '300px',
     padding: isMobile ? '0 10px' : '0',
+    zIndex: 1,
   },
   // Icon styles - simple shapes
   iconPlay: {
