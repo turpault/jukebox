@@ -612,9 +612,11 @@ export default function App() {
               {/* Volume control - hidden in dash view */}
               {viewName !== 'dash' && (
                 <div style={styles.volumeContainer}>
-                  <div style={styles.iconVolume}>
-                    <div style={styles.iconVolumeBody}></div>
-                    <div style={styles.iconVolumeWaves}></div>
+                  <div style={styles.iconVolumeContainer}>
+                    <div style={styles.iconVolume}>
+                      <div style={styles.iconVolumeBody}></div>
+                      <div style={styles.iconVolumeWaves}></div>
+                    </div>
                   </div>
                   <input
                     type="range"
@@ -895,6 +897,12 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     padding: isMobile ? '0 10px' : '0',
     zIndex: 1,
   },
+  iconVolumeContainer: {
+    minWidth: isMobile ? '40px' : '45px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   // Icon styles - simple shapes
   iconPlay: {
     width: 0,
@@ -1169,9 +1177,9 @@ const createStyles = (theme: Theme, isMobile: boolean): Record<string, React.CSS
     WebkitTapHighlightColor: 'transparent',
   },
   volumeLabel: {
-    fontSize: '0.9em',
+    fontSize: isMobile ? '0.8em' : '0.9em',
     color: theme.colors.textSecondary,
-    minWidth: '45px',
+    minWidth: isMobile ? '40px' : '45px',
     textAlign: 'center',
     fontFamily: theme.fonts.primary,
     fontVariantNumeric: 'tabular-nums',
