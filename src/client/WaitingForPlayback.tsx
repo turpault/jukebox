@@ -115,39 +115,40 @@ export const WaitingForPlayback: React.FC<WaitingForPlaybackProps> = ({
       </p>
 
       <div style={{
-        marginTop: '30px',
+        marginTop: '10px',
       }}>
         <h3 style={{
           color: theme.colors.primary,
           fontFamily: theme.fonts.title,
-          fontSize: isMobile ? '1.2rem' : '1.5rem',
-          marginBottom: '20px',
+          fontSize: isMobile ? '1.1rem' : '1.3rem',
+          marginBottom: '8px',
+          marginTop: 0,
           borderBottom: `2px solid ${theme.colors.border}`,
-          paddingBottom: '10px',
+          paddingBottom: '5px',
         }}>
           How to Connect:
         </h3>
 
         <ol style={{
           color: theme.colors.text,
-          fontSize: isMobile ? '0.9rem' : '1rem',
-          lineHeight: '2',
+          fontSize: isMobile ? '0.85rem' : '0.9rem',
+          lineHeight: '1.4',
           paddingLeft: '20px',
           margin: 0,
         }}>
-          <li style={{ marginBottom: '15px' }}>
+          <li style={{ marginBottom: '6px' }}>
             <strong>Open the Spotify app</strong> on your phone, tablet, or computer
           </li>
-          <li style={{ marginBottom: '15px' }}>
+          <li style={{ marginBottom: '6px' }}>
             <strong>Start playing any song</strong> or open a playlist/album
           </li>
-          <li style={{ marginBottom: '15px' }}>
+          <li style={{ marginBottom: '6px' }}>
             <strong>Tap the "Devices Available" button</strong> (looks like a speaker or computer icon) at the bottom of the Now Playing screen
           </li>
-          <li style={{ marginBottom: '15px' }}>
+          <li style={{ marginBottom: '6px' }}>
             <strong>Select "Jukebox"</strong> from the list of available devices
           </li>
-          <li style={{ marginBottom: '15px' }}>
+          <li style={{ marginBottom: '0' }}>
             <strong>Your music will start playing</strong> through the jukebox, and you'll see it appear here!
           </li>
         </ol>
@@ -164,8 +165,9 @@ export const WaitingForPlayback: React.FC<WaitingForPlaybackProps> = ({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'flex-start',
           margin: '50px',
+          paddingTop: '20px',
         }}>
           {connectionInstructions}
         </div>
