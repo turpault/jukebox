@@ -567,6 +567,14 @@ export function JukeboxStateProvider({ children }: JukeboxStateProviderProps) {
     await apiCall('/player/seek', 'POST', { position });
   }, [apiCall]);
 
+  // Clear mute state when volume becomes non-zero (from any source)
+  useEffect(() => {
+    if (isMuted && playerState.volume > 0) {
+      setIsMuted(false);
+      setPreviousVolume(null);
+    }
+  }, [isMuted, playerState.volume]);
+
   const toggleRepeat = useCallback(async () => {
     if (!playerState.repeatContext && !playerState.repeatTrack) {
       logPlayerEvent('User action: Enable repeat context');
